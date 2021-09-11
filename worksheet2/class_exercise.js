@@ -13,10 +13,10 @@ window.onload = function init ()
   var program = initShaders(gl, "vertex-shader", "fragment-shader");
   gl.useProgram(program);
 
-  var step = 0.0;
-  var step_dir = 0.01;
-  var stepLoc = gl.getUniformLocation(program, "step");
-  gl.uniform1f(stepLoc, step);
+  var translation_vec = [0.0, 0.01];
+  // var step_dir = 0.01;
+  var translation_vec_Loc = gl.getUniformLocation(program, "translation_vec");
+  gl.uniform1f(translation_vec_Loc, translation_vec);
 
 
   // VERTEX
@@ -38,25 +38,32 @@ window.onload = function init ()
 
 
 
+  var w = 0.01;
+  var w_Loc = gl.getUniformLocation(program, "w");
+  gl.uniform1f(w_Loc, w);
+
   function render()
   {
     setTimeout(function() {
-      requestAnimFrame(render);
+      requestAnimationFrame(render);
       gl.clear(gl.COLOR_BUFFER_BIT);
 
-      // up
-      if (step >= 0.6) {
-        step_dir = -0.01;
-      }
-      // down
-      if (step <= -0.6) {
-        step_dir = 0.01;
-      }
 
-      step += step_dir;
+      w += sgn(1 - 0.4 - translation_vec_Loc.length())*w
+
+      // // up
+      // if (step >= 0.6) {
+      //   step_dir = -0.01;
+      // }
+      // // down
+      // if (step <= -0.6) {
+      //   step_dir = 0.01;
+      // }
+      //
+      // step += step_dir;
 
 
-      gl.uniform1f(stepLoc, step);
+      gl.uniform1f(translation_vec_Loc, translation_vec);
       gl.drawArrays(gl.TRIANGLE_FAN, 0, 101);
 
     }, 20);
