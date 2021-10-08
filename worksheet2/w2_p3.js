@@ -57,11 +57,9 @@ window.onload = function init ()
 
   var points = [];
   var triangles = [];
-  var circles = [];
 
   var addPoint = true;
   var addTriangle = false;
-  var addCircle = false;
 
 
     // click on canvas
@@ -69,18 +67,15 @@ window.onload = function init ()
 
   var addPointB = document.getElementById("addPointButton");
   var addTriangleB = document.getElementById("addTriangleButton");
-  var addCircleB = document.getElementById("addCircleButton");
 
   addTriangleB.addEventListener("click", function (ev) {
     addTriangle = true;
     addPoint = false;
-    addCircle = false;
   });
 
   addPointB.addEventListener("click", function (ev) {
     addTriangle = false;
     addPoint = true;
-    addCircle = false;
   });
 
 
@@ -100,9 +95,6 @@ window.onload = function init ()
         triangles.push(points.pop());
       }
 
-    }
-    else if (addCircle) {
-      console.log('hi');
     }
     else {
       points.push(index);

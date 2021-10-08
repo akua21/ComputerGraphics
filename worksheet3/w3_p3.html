@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+
+  <body>
+    <ol class="list color-list">
+      <li>List the transformation matrices that you used in Parts 1 and 2 (use general expressions rather than concrete numbers). </li>
+
+      <p><b>Part 1:</b> traslation matrix.</p>
+      <p>T = [(1 0 0 &alpha;x), (0 1 0 &alpha;y), (0 0 1 &alpha;z), (0 0 0 1)]</p>
+
+      <br>
+
+      <p><b>Part 2:</b> traslation, scaling and rotation matrices.</p>
+      <p>T = [(1 0 0 &alpha;x), (0 1 0 &alpha;y), (0 0 1 &alpha;z), (0 0 0 1)]</p>
+      <p>S = [(&beta;x 0 0 0), (0 &beta;y 0 0), (0 0 0 &beta;z), (0 0 0 1)]</p>
+
+      <p>R = Rz Ry Rx</p>
+      <p>Rx(&theta;) = [(1 0 0 0), (0 cos(&theta;) -sin(&theta;) 0), (0 sin(&theta;) cos(&theta;) 0), (0 0 0 1)]</p>
+      <p>Ry(&theta;) = [(cos(&theta;) 0 sin(&theta;) 0), (0 1 0 0), (-sin(&theta;) 0 cos(&theta;) 0), (0 0 0 1)]</p>
+      <p>Rz(&theta;) = [(cos(&theta;) -sin(&theta;) 0 0), (sin(&theta;) cos(&theta;) 0 0), (0 sin(&theta;) cos(&theta;) 0), (0 0 0 1)]</p>
+
+
+      <br>
+
+      <li>For each cube, write down a formula showing how the matrices were concatenated to become the current transformation matrix (CTM) that was used to transform the vertices in the vertex shader.</li>
+
+      <p>One-point perspective (the cube in the middle):</p>
+      <p>C &larr; I</p>
+      <p>C &larr; CS(0.5, 0.5, 0.5)</p>
+      <p>C &larr; CR(0.0, 0.0, 0.0)</p>
+      <p>C &larr; CT(0.0, 0.0, 0.0)</p>
+
+      <p>Two-point perspective (the cube at the top):</p>
+      <p>C &larr; I</p>
+      <p>C &larr; CS(0.4, 0.4, 0.4)</p>
+      <p>C &larr; CR(-12.0, -60.0, 0.0)</p>
+      <p>C &larr; CT(0.0, 2.0, 0.0)</p>
+
+      <p>Three-point perspective (the cube at the bottom):</p>
+      <p>C &larr; I</p>
+      <p>C &larr; CS(0.4, 0.4, 0.4)</p>
+      <p>C &larr; CR(0.0, -50.0, 0.0)</p>
+      <p>C &larr; CT(0.0, -2.0, 0.0)</p>
+
+    </ol>
+  </body>
+</html>

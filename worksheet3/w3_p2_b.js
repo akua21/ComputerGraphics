@@ -36,10 +36,12 @@ window.onload = function init ()
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
 
-
   var vPosition = gl.getAttribLocation(program, "a_Position");
-  gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(vPosition);
+
+  // var vPosition = gl.getAttribLocation(program, "a_Position");
+  // gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0);
+  // gl.enableVertexAttribArray(vPosition);
+
 
 
 
@@ -121,6 +123,8 @@ window.onload = function init ()
   mLoc = gl.getUniformLocation(program, "m"); // get location of model matrix in shader
   vLoc = gl.getUniformLocation(program, "v"); // get location of view matrix in shader
 
+  ctmLoc = gl.getUniformLocation(program, "ctm");
+
 
   // Isometric view
   var eye = vec3(0.0, 0.0, 3.0);
@@ -129,20 +133,20 @@ window.onload = function init ()
 
 
   v = lookAt(eye, at, up);
-
-
-  var t_x = -2.0;
-  var t_y = 0.0;
-  var t_z = 0.0;
-
-  var s_x = 0.4;
-  var s_y = 0.4;
-  var s_z = 0.4;
-
-  m = mult(m, scalem(s_x, s_y, s_z)); // scale
-  m = mult(m, translate(t_x, t_y, t_z)); // translation
-
-
+  //
+  //
+  // var t_x = -2.0;
+  // var t_y = 0.0;
+  // var t_z = 0.0;
+  //
+  // var s_x = 0.4;
+  // var s_y = 0.4;
+  // var s_z = 0.4;
+  //
+  // m = mult(m, scalem(s_x, s_y, s_z)); // scale
+  // m = mult(m, translate(t_x, t_y, t_z)); // translation
+  //
+  //
   gl.uniformMatrix4fv(mLoc, false, flatten(m)); // copy m to uniform value in shader
   gl.uniformMatrix4fv(vLoc, false, flatten(v)); // copy v to uniform value in shader
   gl.uniformMatrix4fv(projLoc, false, flatten(p)); // copy p to uniform value in shader
@@ -154,8 +158,104 @@ window.onload = function init ()
   {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  gl.drawElements(gl.LINES, numVertices, gl.UNSIGNED_BYTE, 0);
+  // gl.drawElements(gl.LINES, numVertices, gl.UNSIGNED_BYTE, 0);
+  // window.requestAnimFrame(render, canvas);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+  gl.enableVertexAttribArray(vPosition);
+  gl.vertexAttribPointer(vPosition, 3, gl.FLOAT, false, 0, 0); // change to 4
+
+  var matrices = [
+    mat4(),
+    mat4(),
+    mat4(),
+  ];
+
+  var tx = 0.0;
+  var ty = 0.0;
+  var tz = 0.0;
+
+  var tx2 = 0.0;
+  var ty2 = 2.0;
+  var tz2 = 0.0;
+
+  var tx3 = 0.0;
+  var ty3 = -2.0;
+  var tz3 = 0.0;
+
+  var sx = 0.5;
+  var sy = 0.5;
+  var sz = 0.5;
+
+  var sx2 = 0.4;
+  var sy2 = 0.4;
+  var sz2 = 0.4;
+
+  var sx3 = 0.4;
+  var sy3 = 0.4;
+  var sz3 = 0.4;
+
+  var rx = 0.0;
+  var ry = 0.0;
+  var rz = 0.0;
+
+  var rx2 = -12.0;
+  var ry2 = -60.0;
+  var rz2 = 0.0;
+
+  var rx3 = 0.0;
+  var ry3 = -50.0;
+  var rz3 = 0.0;
+
+  var s = [vec3(sx, sy, sz), vec3(sx2, sy2, sz2), vec3(sx3, sy3, sz3)]; // scale factors
+  var t = [vec3(tx, ty, tz), vec3(tx2, ty2, tz2), vec3(tx3, ty3, tz3)]; // translation vector
+  var r = [vec3(rx, ry, rz), vec3(rx2, ry2, rz2), vec3(rx3, ry3, rz3)]; // rotation vector
+
+
+  matrices.forEach((mat, ndx) => {
+    mat = mult(mat, scalem(s[ndx]));
+    mat = mult(mat, rotateX(r[ndx][0]));
+    mat = mult(mat, rotateY(r[ndx][1]));
+    mat = mult(mat, translate(t[ndx]));
+    gl.uniformMatrix4fv(ctmLoc, false, flatten(mat));
+
+    gl.drawElements(gl.LINES, numVertices, gl.UNSIGNED_BYTE, 0);
+
+
+    // mat = mult(mat, scalem(s)); // scale
+    // // mat = mult(mat, rotateX(r[0])); // rotate
+    // mat = mult(mat, translate(t[0], t[1] -2.0 + ndx*2.0, t[2])); // translate
+    // gl.uniformMatrix4fv(ctmLoc, false, flatten(mat));
+    //
+    // gl.drawElements(gl.LINES, numVertices, gl.UNSIGNED_BYTE, 0);matrices[ndx]
+  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  // matrices.forEach((mat, ndx) => {
+  //   mat = mult(mat, scalem(s)); // scale
+  //   // mat = mult(mat, rotateX(r[0])); // rotate
+  //   mat = mult(mat, translate(t[0], t[1] -2.0 + ndx*2.0, t[2])); // translate
+  //   gl.uniformMatrix4fv(ctmLoc, false, flatten(mat));
+  //
+  //   gl.drawElements(gl.LINES, numVertices, gl.UNSIGNED_BYTE, 0);
+  // });
+
   window.requestAnimFrame(render, canvas);
+
   }
 
   render();

@@ -1,0 +1,57 @@
+body {
+  padding: 10px 20px;
+  font-family: "Lucida Console", "Courier New", monospace;
+  color: white;
+  background-color: #212121;
+}
+
+h1 {
+  font-size: 50px;
+  background-color: #bb86fc;
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+}
+
+h2 {
+  display: flex;
+  justify-content: center;
+  text-align: center;
+  color: #bb86fc;
+}
+
+.list {
+  list-style-type: none;
+  counter-reset: item;
+  margin: 6px 0 20px 0;
+  font-size: 18px;
+}
+
+.list > li {
+  counter-increment: item;
+  margin: 3px 0;
+}
+
+.list > li::before {
+  content: counters(item, '.') '- ';
+}
+
+.list > li > a {
+  color: #03dac5;
+  font-size: 15px;
+}
+
+.color-list > li {
+  color: #bb86fc
+}
+
+
+/*
+
+#bb86fc
+
+#3700b3
+
+#03dac5
+
+*/

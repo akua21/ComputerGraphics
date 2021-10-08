@@ -32,7 +32,7 @@ var m = mat4();   // model matrix
 var v = mat4();   // view matrix
 var p = mat4();    // projection matrix
 
-var modelViewMatrix;
+var modelViewMatrix; // modelview matrix
 var normalMatrix; // normal matrix
 
 var fovy = 45.0; // angle between the top and bottom planes of the clipping volume
@@ -124,7 +124,6 @@ window.onload = function init(){
   var specularProduct = mult(lightEmission, materialSpecular);
 
 
-
   tetrahedron(va, vb, vc, vd, numSubdivs);
 
 
@@ -175,6 +174,7 @@ window.onload = function init(){
     numSubdivs += 1;
     index = 0;
     pointsArray = [];
+    normalsArray = [];
     init();
   };
 
@@ -184,6 +184,7 @@ window.onload = function init(){
     }
     index = 0;
     pointsArray = [];
+    normalsArray = [];
     init();
   };
 
@@ -226,12 +227,13 @@ function render(){
   v = lookAt(eye, at, up);
   p = perspective(fovy, aspect, near, far);
 
-  modelViewMatrix = mult(m, v);
+  modelViewMatrix = mult(v, m);
   normalMatrix = [
     vec3(modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2]),
     vec3(modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2]),
     vec3(modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2])
   ];
+
 
 
   gl.uniformMatrix4fv(mLoc, false, flatten(m)); // copy m to uniform value in shader

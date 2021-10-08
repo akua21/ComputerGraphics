@@ -9,12 +9,7 @@ var vd = vec4(0.816497, -0.471405, 0.333333, 1);
 
 // Light
 var lightPosition = vec4(0.0, 0.0, -1.0, 0.0);
-var lightAmbient = vec4(0.2, 0.2, 0.2, 1.0 );
-var lightDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-// var lightSpecular = vec4( 1.0, 1.0, 1.0, 1.0 );
-
-var ambientColor;
-var diffuseColor;
+var lightEmission = vec4(1.0, 1.0, 1.0, 1.0);
 
 var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
 var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
@@ -39,24 +34,9 @@ var eye;
 var at = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 0.2, 0.0);
 
-var theta = 0.0;
-var phi = 0.0;
+var alpha = 0.0;
 var radius = 4.0;
-var dr = 1.0 * Math.PI/180.0;
-
-
-
-
-
-var c1 = vec4(0.0, 0.0, 0.0, 1.0); //black
-var c2 = vec4(1.0, 0.0, 0.0, 1.0); // red
-var c3 = vec4(1.0, 1.0, 0.0, 1.0); // yellow
-var c4 = vec4(0.0, 1.0, 0.0, 1.0); // green
-var c5 = vec4(0.0, 0.0, 1.0, 1.0); // blue
-var c6 = vec4(1.0, 0.0, 1.0, 1.0); // magenta
-var c7 = vec4(1.0, 1.0, 1.0, 1.0); // white
-var c8 = vec4(0.0, 1.0, 1.0, 1.0); // cyan
-
+var dr = 0.3 * Math.PI/180.0;
 
 var numSubdivs = 5;
 var index = 0;
@@ -105,7 +85,7 @@ function tetrahedron(a, b, c, d, n){
 
 
 
-window.onload = function init(){
+window.onload = function init(ev, callRender=true){
 
   canvas = document.getElementById("gl-canvas");
   gl = WebGLUtils.setupWebGL(canvas);
@@ -123,10 +103,8 @@ window.onload = function init(){
   var program = initShaders(gl, "vertex-shader", "fragment-shader");
   gl.useProgram(program);
 
-  var ambientProduct = mult(lightAmbient, materialAmbient);
-  var diffuseProduct = mult(lightDiffuse, materialDiffuse);
-
-
+  var ambientProduct = mult(lightEmission, materialAmbient);
+  var diffuseProduct = mult(lightEmission, materialDiffuse);
 
   tetrahedron(va, vb, vc, vd, numSubdivs);
 
@@ -169,7 +147,8 @@ window.onload = function init(){
     numSubdivs += 1;
     index = 0;
     pointsArray = [];
-    init();
+    normalsArray = [];
+    init(null, false);
   };
 
   document.getElementById("decrementSubdivsButton").onclick = function(){
@@ -178,20 +157,22 @@ window.onload = function init(){
     }
     index = 0;
     pointsArray = [];
-    init();
+    normalsArray = [];
+    init(null, false);
   };
 
-
-  render();
+  if (callRender) {
+    render();
+  }
 }
 
 
 function render(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  theta += dr;
+  alpha += dr;
 
-  eye = vec3(radius*Math.sin(theta)*Math.cos(phi), radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
+  eye = vec3(radius*Math.sin(alpha), 0, radius*Math.cos(alpha));
 
   v = lookAt(eye, at, up);
   p = perspective(fovy, aspect, near, far);

@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <title></title>
+    <link rel="stylesheet" href="../style.css">
   </head>
 
 
@@ -23,32 +24,28 @@
 
 
     void main() {
-      vec3 pos =(v * m * a_Position).xyz; // vertex position in eye coordinates
-
+      vec3 pos = (v * m * a_Position).xyz; // vertex position in eye coordinates
+      vec3 light = (v * lightPosition).xyz;
       vec3 L; // vector from vertex position to light source
 
       // check for directional light
-      if (lightPosition.w == 0.0) {
-        L = normalize(lightPosition.xyz);
+      if (lightPosition.w == 0.0){
+        L = normalize(light);
       }
       else{
-        L = normalize(lightPosition.xyz - pos);
+        L = normalize(light - pos);
       }
 
       vec3 N = normalize(normalMatrix * v_Normal.xyz);
 
       vec4 ambient = ambientProduct;
-
-      float kd = max(dot(L, N), 0.0);
-      vec4 diffuse = kd * diffuseProduct;
-
+      vec4 diffuse = max(dot(L, N), 0.0) * diffuseProduct;
 
 
       gl_Position = p * v * m * a_Position;
       // v_Color = vec4(0.5*a_Position.xyz + 0.5, 1.0);
       v_Color = ambient + diffuse;
       v_Color.a = 1.0;
-
     }
   </script>
 
