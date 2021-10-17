@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+
+
+  <script id ="vertex-shader" type="x-shader/x-vertex">
+    precision mediump float;
+    attribute vec4 a_Position;
+    attribute vec4 a_Color;
+    varying vec4 v_Color;
+
+    attribute vec2 texCoord;
+    varying vec2 fTexCoord;
+
+    uniform mat4 mv; // modelview matrix in shader
+    uniform mat4 p; // projection matrix in shader
+
+    void main() {
+      gl_Position = p * mv * a_Position; // transforming the coords
+      v_Color = a_Color;
+      fTexCoord = texCoord;
+    }
+  </script>
+
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 v_Color;
+
+    uniform sampler2D texMap;
+    varying vec2 fTexCoord;
+
+    void main() {
+      // gl_FragColor = v_Color;
+      gl_FragColor = texture2D(texMap, fTexCoord);
+    }
+  </script>
+
+  <script type ="text/javascript" src="../angelCommon/webgl-utils.js"></script>
+  <script type ="text/javascript" src="../angelCommon/initShaders.js"></script>
+  <script type ="text/javascript" src="../angelCommon/MV.js"></script>
+  <script src="w6_p2.js"></script>
+
+
+  <body>
+    <canvas id="gl-canvas" width="512" height="512"></canvas>
+
+    <p><b>Texture wrapping modes:</b></p>
+    <button id="repeatButton">Repeat</button>
+    <button id="clampButton">Clamp-to-edge</button>
+
+    <br>
+    <br>
+
+    <p><b>Texture filtering modes:</b></p>
+
+    <p>Magnification:</p>
+    <select id="magnificationMenu" size="2">
+      <option value="0" selected>Nearest</option>
+      <option value="1">Linear</option>
+    </select>
+
+    <p>Minification:</p>
+    <select id="minificationMenu" size="6">
+      <option value="0" selected>Nearest</option>
+      <option value="1">Linear</option>
+      <option value="2">Nearest-mipmap-nearest</option>
+      <option value="3">Linear-mipmap-nearest</option>
+      <option value="4">Nearest-mipmap-linear</option>
+      <option value="5">Linear-mipmap-linear</option>
+
+    </select>
+
+  </body>
+</html>

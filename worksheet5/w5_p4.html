@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="shortcut icon" href="#">
+  </head>
+
+
+  <script id ="vertex-shader" type="x-shader/x-vertex">
+  precision mediump float;
+  attribute vec4 a_Position;
+  attribute vec4 v_Normal;
+
+  uniform mat4 m; // model matrix in shader
+  uniform mat4 v; // view matrix in shader
+  uniform mat4 p; // projection matrix in shader
+  uniform mat3 normalMatrix; // normal matrix shader
+  uniform vec4 lightPosition;
+
+  varying vec3 N, L, E;
+
+  void main() {
+    vec3 pos = (v * m * a_Position).xyz;
+    vec3 light = (v * lightPosition).xyz;
+
+    // check for directional light
+    if (lightPosition.w == 0.0){
+      L = normalize(light);
+    }
+    else{
+      L = normalize(light - pos);
+    }
+
+    E = -normalize(pos);
+    N = normalize(normalMatrix * v_Normal.xyz);
+
+    gl_Position = p * v * m * a_Position;
+  }
+  </script>
+
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    uniform vec4 ambientProduct;
+    uniform vec4 diffuseProduct;
+    uniform vec4 specularProduct;
+    uniform float shininess;
+    varying vec3 N, L, E;
+
+  void main() {
+    vec4 v_Color;
+
+    vec3 normN = normalize(N);
+    vec3 normL = normalize(L);
+    vec3 normE = normalize(E);
+
+    vec3 H = normalize(normL + normE);
+
+    vec4 ambient = ambientProduct * 0.5;
+    vec4 diffuse = max(dot(normL, normN), 0.0) * diffuseProduct * 0.5;
+    vec4 specular = pow(max(dot(normN, H), 0.0), shininess) * specularProduct * 0.5;
+
+    if(dot(normL, normN) < 0.0){
+       specular = vec4(0.0, 0.0, 0.0, 1.0);
+    }
+
+    v_Color = ambient + diffuse + specular;
+    v_Color.a = 1.0;
+
+    gl_FragColor = v_Color;
+  }
+  </script>
+
+  <script type ="text/javascript" src="../angelCommon/webgl-utils.js"></script>
+  <script type ="text/javascript" src="../angelCommon/initShaders.js"></script>
+  <script type ="text/javascript" src="../angelCommon/MV.js"></script>
+  <script src="w5_p4.js"></script>
+  <script type="text/javascript" src="../common/OBJParser.js"></script>
+
+  <body>
+    <canvas id="gl-canvas" width="512" height="512"></canvas>
+
+    <ol class="list color-list">
+      <li>Explain how you obtain and use surface normals, and explain how this relates to the surface smoothness when you are rendering a triangle mesh.</li>
+
+      <p>blah blah</p>
+
+
+    </ol>
+  </body>
+</html>

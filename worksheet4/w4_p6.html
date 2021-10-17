@@ -10,19 +10,54 @@
     <ol class="list color-list">
       <li>What is the difference between Phong shading and Phong lighting (the Phong reflection model)?</li>
 
-      <p>blah blah</p>
+      <p>The Phong lighting calculates the amount of light that is reflected towards the viewer. It is an ilumination model that does this with the components: ambient, diffuse and specular.</p>
+
+      <p>Meanwhile, the Phong shading is a shading model that uses an ilumination model to get and return the colour for each pixel.</p>
+
+      <br>
 
       <li>What is the difference between flat shading, Gouraud shading, and Phong shading? List pros and cons of each. Is Gouraud or Phong shading the best method for simulating highlights? Explain.</li>
 
+      <p><b>Flat shading:</b> each polygon has only one normal vector, therefore all pixels in the same polygon have the same ilumination value. <b>Pros:</b> fastest and simplest shading model. <b>Cons:</b> the results are meshes with edges that are very easy to spot.
+      </p>
+
+      <p><b>Gouraud shading:</b> each polygon has one normal vector in each vertex where the ilumination value is calculated and then all the values from each vertex of the polygon are interpolated for all the pixels in the polygon. <b>Pros:</b> faster than Phong shading and better quality than Flat shading. <b>Cons:</b> worse quality than Phong shading.
+      </p>
+
+      <p><b>Phong shading:</b> each polygon has one normal vector in each vertex. Then for all pixels in the polygon the normals are interpolated. Lastly, for each pixel the ilumination value is calculated using its normal. <b>Pros:</b> the best quality. <b>Cons:</b> takes the longest to calculate.
+      </p>
+
+      <p>For simulating highlights Phong shading is better as it gets smoother results of the surfaces.</p>
+
+      <br>
+
       <li>What is the difference between a directional light and a point light?</li>
+
+      <p>Directional light does not have a position, making the rays parallel. While the rays of a point light radiate outward from the position of the point light.</p>
+
+      <br>
 
       <li>Does the eye position influence the shading of an object in any way?</li>
 
-      <li>What is the effect of setting the specular term to (0, 0,0)?</li>
+      <p>It influences in the way the specular light is calculated, therefore it influences the shading.</p>
+
+      <br>
+
+      <li>What is the effect of setting the specular term to (0,0,0)?</li>
+
+      <p>That there is no specular lighting.</p>
+
+      <br>
 
       <li>What is the effect of increasing the shininess exponent (𝛼)?</li>
 
+      <p>As the shininess increases, the specular highlights get smaller.</p>
+
+      <br>
+
       <li>In what coordinate space did you compute the lighting?</li>
+
+      <p>In eye coordinates.</p>
     </ol>
   </body>
 </html>

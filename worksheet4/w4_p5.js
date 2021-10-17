@@ -124,7 +124,6 @@ window.onload = function init(){
   var specularProduct = mult(lightEmission, materialSpecular);
 
 
-
   tetrahedron(va, vb, vc, vd, numSubdivs);
 
 
@@ -146,7 +145,6 @@ window.onload = function init(){
   var vPosition = gl.getAttribLocation(program, "a_Position");
   gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(vPosition);
-
 
   projLoc = gl.getUniformLocation(program, "p"); // get location of projection matrix in shader
   mLoc = gl.getUniformLocation(program, "m"); // get location of model matrix in shader
