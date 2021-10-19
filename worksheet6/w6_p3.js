@@ -96,12 +96,14 @@ window.onload = function init(ev, callRender=true){
 
   gl.clearColor(0.3921, 0.5843, 0.9294, 1.0);
 
+  var program = initShaders(gl, "vertex-shader", "fragment-shader");
+  gl.useProgram(program);
+
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-  // Shaders
-  var program = initShaders(gl, "vertex-shader", "fragment-shader");
-  gl.useProgram(program);
+
+
 
   var ambientProduct = mult(lightEmission, materialAmbient);
   var diffuseProduct = mult(lightEmission, materialDiffuse);
@@ -119,6 +121,7 @@ window.onload = function init(ev, callRender=true){
   gl.enableVertexAttribArray(vNormal);
 
 
+
   // Vertices
   var vBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
@@ -134,10 +137,52 @@ window.onload = function init(ev, callRender=true){
   vLoc = gl.getUniformLocation(program, "v"); // get location of view matrix in shader
   normLoc = gl.getUniformLocation(program, "normalMatrix"); // get location of normal matrix in shader
 
+  gl.uniform1i(gl.getUniformLocation(program, "texMap"), 0);
+
 
   gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct));
   gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct));
   gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),flatten(lightPosition));
+
+
+
+  // Texture
+  var texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+
+
+  var image = document.createElement('img');
+  image.crossorigin = 'anonymous';
+  image.onload = function () {
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+    gl.generateMipmap(gl.TEXTURE_2D);
+  };
+  image.src = '../assets/earth.jpg';
+
+
+
+  var tex_coordinates = [];
+
+  for (var i = 0; i < normalsArray.length; i++) {
+    var u = 1 - (Math.atan(normalsArray[i][2], normalsArray[i][0]) / (2 * Math.PI));
+    var v = Math.acos(normalsArray[i][1]) / Math.PI;
+
+    tex_coordinates.push(vec2(u, v));
+  }
+
+
+
+  var tBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, tBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(tex_coordinates), gl.STATIC_DRAW);
+
+  var vTexCoord = gl.getAttribLocation(program, "texCoord");
+  gl.vertexAttribPointer(vTexCoord, 2, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(vTexCoord);
+
+
+
 
 
 

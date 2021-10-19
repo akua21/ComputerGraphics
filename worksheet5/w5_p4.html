@@ -84,9 +84,10 @@
     <ol class="list color-list">
       <li>Explain how you obtain and use surface normals, and explain how this relates to the surface smoothness when you are rendering a triangle mesh.</li>
 
-      <p>blah blah</p>
+      <p>When we applied 'shade smooth' to the mesh in Blender, it renders and displays faces smooth by using interpolated vertex normals. Then in the OBJ file these vertex normals are stored in different lines as 'vn' followed by its position.</p>
 
 
+      <p>After that, we parse the wavefront OBJ file, this takes the different normals to be used in the shaders of the gl.program and write the results into the buffer.</p>
     </ol>
   </body>
 </html>
