@@ -130,7 +130,7 @@ window.onload = function init ()
   {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, vertices.length);
 
   window.requestAnimFrame(render);
   }

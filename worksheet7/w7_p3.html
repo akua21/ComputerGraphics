@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+
+
+  <script id ="vertex-shader" type="x-shader/x-vertex">
+    precision mediump float;
+    attribute vec4 a_Position;
+
+    attribute vec4 a_Color;
+    varying vec4 v_Color;
+    attribute vec3 v_Normal;
+
+    uniform mat4 m; // model matrix in shader
+    uniform mat4 v; // view matrix in shader
+    uniform mat4 p; // projection matrix in shader
+    uniform mat3 normalMatrix; // normal matrix shader
+
+    uniform mat4 mtex; // texture matrix
+    varying vec4 normal;
+
+    uniform vec4 ambientProduct;
+    uniform vec4 diffuseProduct;
+    uniform vec4 lightPosition;
+
+
+    void main() {
+      vec3 pos = (v * m * a_Position).xyz; // vertex position in eye coordinates
+      vec3 light = (v * lightPosition).xyz;
+      vec3 L; // vector from vertex position to light source
+
+      // check for directional light
+      if (lightPosition.w == 0.0){
+        L = normalize(light);
+      }
+      else{
+        L = normalize(light - pos);
+      }
+
+      vec3 N = normalize(normalMatrix * v_Normal.xyz);
+
+      vec4 ambient = ambientProduct;
+      vec4 diffuse = max(dot(L, N), 0.0) * diffuseProduct;
+
+      normal = mtex * a_Position;
+      gl_Position = p * v * m * normal;
+      // v_Color = ambient + diffuse;
+    }
+  </script>
+
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    varying vec4 normal;
+    uniform samplerCube texMap;
+
+    uniform bool reflective;
+    uniform vec3 eye;
+
+    void main() {
+      vec3 texCoord = normal.xyz;
+      // reflective objects
+      if (reflective) {
+        vec3 view = normal.xyz - eye;
+        texCoord = reflect(view, normal.xyz); // direction of reflection as texture coordinates
+      }
+
+      gl_FragColor = textureCube(texMap, normalize(texCoord));
+    }
+  </script>
+
+  <script type ="text/javascript" src="../angelCommon/webgl-utils.js"></script>
+  <script type ="text/javascript" src="../angelCommon/initShaders.js"></script>
+  <script type ="text/javascript" src="../angelCommon/MV.js"></script>
+  <script src="w7_p3.js"></script>
+
+
+  <body>
+    <canvas id="gl-canvas" width="512" height="512"></canvas>
+  </body>
+</html>

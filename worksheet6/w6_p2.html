@@ -10,8 +10,6 @@
   <script id ="vertex-shader" type="x-shader/x-vertex">
     precision mediump float;
     attribute vec4 a_Position;
-    attribute vec4 a_Color;
-    varying vec4 v_Color;
 
     attribute vec2 texCoord;
     varying vec2 fTexCoord;
@@ -21,20 +19,17 @@
 
     void main() {
       gl_Position = p * mv * a_Position; // transforming the coords
-      v_Color = a_Color;
       fTexCoord = texCoord;
     }
   </script>
 
   <script id="fragment-shader" type="x-shader/x-fragment">
     precision mediump float;
-    varying vec4 v_Color;
 
     uniform sampler2D texMap;
     varying vec2 fTexCoord;
 
     void main() {
-      // gl_FragColor = v_Color;
       gl_FragColor = texture2D(texMap, fTexCoord);
     }
   </script>
@@ -79,7 +74,20 @@
     <ol class="list color-list">
       <li>Explain the effect of the different filtering modes and their influence on texture magnification and minification issues.</li>
 
-      <p>blah blah</p>
+      <p>For magnification there is <i>nearest</i> and <i>linear</i>. With the first one, the texel with the nearest coordinates to the center of the pixel is used, causing aliasing artifacts. But with the second one, a weighted linear average of the array of texels that lie nearest to the center of the pixel is used, so the result is less aliased and smoother than with the first one.</p>
+
+      <br>
+
+      <p>For minification there is also <i>nearest</i> and <i>linear</i>, and they work in the same way as for magnification. But there are also four other filtering methods available when minifying with mipmaps:
+
+      <br>
+      <br>
+
+      Within an individual mipmap, there is the nearest texel value (<i>nearest-mipmap-nearest</i>) or there is linear interpolation (<i>linear-mipmap-nearest</i>).
+
+      <br>
+
+      Then there is filtering within the best mipmap. Having <i>nearest-mipmap-linear</i>, that selects the nearest texel in each of the two maps and then interpolates linearly between these two values, and <i>linear-mipmap-linear</i>, that uses linear interpolation to compute the value in each of the two maps and then interpolates linearly between these two values, getting the best results.</p>
     </ol>
   </body>
 </html>

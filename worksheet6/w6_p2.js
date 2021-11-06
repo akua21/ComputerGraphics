@@ -166,13 +166,6 @@ window.onload = function init ()
     }
   }
 
-
-
-
-
-
-
-
   // Events
 
   var repeatButton = document.getElementById("repeatButton");
@@ -200,21 +193,13 @@ window.onload = function init ()
   filtering_mag(magnificationMenu.selectedIndex);
   filtering_min(minificationMenu.selectedIndex);
 
-
-
-
-
   gl.generateMipmap(gl.TEXTURE_2D);
-
-
-
-
 
 
   function render() {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  gl.drawArrays(gl.TRIANGLES, 0, vertices.length);
+  gl.drawArrays(gl.TRIANGLE_FAN, 0, vertices.length);
 
   window.requestAnimFrame(render);
   }

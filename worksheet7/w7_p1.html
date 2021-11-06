@@ -17,26 +17,41 @@
     attribute vec2 texCoord;
     varying vec2 fTexCoord;
 
-    attribute vec4 v_Normal;
-    varying vec4 fNormal;
+    attribute vec3 v_Normal;
+    varying vec3 fNormal;
 
     uniform mat4 m; // model matrix in shader
     uniform mat4 v; // view matrix in shader
     uniform mat4 p; // projection matrix in shader
+    uniform mat3 normalMatrix; // normal matrix shader
 
     uniform vec4 ambientProduct;
-
-    uniform vec3 lightEmission;
-    uniform vec3 lightDirection;
+    uniform vec4 diffuseProduct;
+    uniform vec4 lightPosition;
 
 
     void main() {
+      vec3 pos = (v * m * a_Position).xyz; // vertex position in eye coordinates
+      vec3 light = (v * lightPosition).xyz;
+      vec3 L; // vector from vertex position to light source
+
+      // check for directional light
+      if (lightPosition.w == 0.0){
+        L = normalize(light);
+      }
+      else{
+        L = normalize(light - pos);
+      }
+
+      vec3 N = normalize(normalMatrix * v_Normal.xyz);
+
       vec4 ambient = ambientProduct;
-      vec3 diffuse = max(dot(lightDirection, a_Position.xyz), 0.0) * lightEmission;
+      vec4 diffuse = max(dot(L, N), 0.0) * diffuseProduct;
+
 
       gl_Position = p * v * m * a_Position;
-      v_Color = ambient + vec4(diffuse, 1.0);
-
+      v_Color = ambient + diffuse;
+      v_Color.a = 1.0;
 
       fTexCoord = texCoord;
       fNormal = v_Normal;
@@ -45,36 +60,22 @@
 
   <script id="fragment-shader" type="x-shader/x-fragment">
     precision mediump float;
-    varying vec4 v_Color;
 
-    uniform sampler2D texMap;
-
-    varying vec4 fNormal;
+    uniform samplerCube texMap;
+    varying vec3 fNormal;
 
     void main() {
-      float u = (atan(fNormal.z, fNormal.x) / (2.0 * 3.14159));
-      float v = 1.0 - acos(fNormal.y) / 3.14159;
-
-      vec2 tCoord = vec2(u, v);
-
-      gl_FragColor = texture2D(texMap, tCoord) * v_Color;
+      gl_FragColor = textureCube(texMap, fNormal);
     }
   </script>
 
   <script type ="text/javascript" src="../angelCommon/webgl-utils.js"></script>
   <script type ="text/javascript" src="../angelCommon/initShaders.js"></script>
   <script type ="text/javascript" src="../angelCommon/MV.js"></script>
-  <script src="w6_p3.js"></script>
+  <script src="w7_p1.js"></script>
 
 
   <body>
     <canvas id="gl-canvas" width="512" height="512"></canvas>
-
-    <ol class="list color-list">
-      <li>Explain your choice of filtering.</li>
-
-      <p>The filtering option that better results obtained was <b>LINEAR_MIPMAP_LINEAR</b>, for minification. We reduce the minification issues without getting a blurring texture.</p>
-    </ol>
-
   </body>
 </html>

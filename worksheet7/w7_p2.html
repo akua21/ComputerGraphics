@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../style.css">
+  </head>
+
+
+  <script id ="vertex-shader" type="x-shader/x-vertex">
+    precision mediump float;
+    attribute vec4 a_Position;
+
+    attribute vec4 a_Color;
+    varying vec4 v_Color;
+
+    attribute vec2 texCoord;
+    varying vec2 fTexCoord;
+
+    attribute vec3 v_Normal;
+
+    uniform mat4 m; // model matrix in shader
+    uniform mat4 v; // view matrix in shader
+    uniform mat4 p; // projection matrix in shader
+    uniform mat3 normalMatrix; // normal matrix shader
+
+    uniform mat4 mtex; // texture matrix
+    varying vec4 normal;
+
+    uniform vec4 ambientProduct;
+    uniform vec4 diffuseProduct;
+    uniform vec4 lightPosition;
+
+
+    void main() {
+      vec3 pos = (v * m * a_Position).xyz; // vertex position in eye coordinates
+      vec3 light = (v * lightPosition).xyz;
+      vec3 L; // vector from vertex position to light source
+
+      // check for directional light
+      if (lightPosition.w == 0.0){
+        L = normalize(light);
+      }
+      else{
+        L = normalize(light - pos);
+      }
+
+      vec3 N = normalize(normalMatrix * v_Normal.xyz);
+
+      vec4 ambient = ambientProduct;
+      vec4 diffuse = max(dot(L, N), 0.0) * diffuseProduct;
+
+      normal = mtex * a_Position;
+      gl_Position = p * v * m * normal;
+      v_Color = ambient + diffuse;
+    }
+  </script>
+
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 v_Color;
+
+    varying vec4 normal;
+    uniform samplerCube texMap;
+
+    void main() {
+      gl_FragColor = textureCube(texMap, normalize(normal.xyz));
+    }
+  </script>
+
+  <script type ="text/javascript" src="../angelCommon/webgl-utils.js"></script>
+  <script type ="text/javascript" src="../angelCommon/initShaders.js"></script>
+  <script type ="text/javascript" src="../angelCommon/MV.js"></script>
+  <script src="w7_p2.js"></script>
+
+
+  <body>
+    <canvas id="gl-canvas" width="512" height="512"></canvas>
+
+    <ol class="list color-list">
+      <li>Explain the transformation.</li>
+
+      <p>This transformation creates the illusion of being in an actual 3D environment, doing this by changing the texture coordinates. It is necessary to do it because we do not want the camera to move around the quad.</p>
+    </ol>
+  </body>
+</html>
