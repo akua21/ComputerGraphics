@@ -52,7 +52,7 @@
     varying vec4 fNormal;
 
     void main() {
-      float u = (atan(fNormal.z, fNormal.x) / (2.0 * 3.14159));
+      float u = 1.0 - (atan(fNormal.z, fNormal.x) / (2.0 * 3.14159));
       float v = 1.0 - acos(fNormal.y) / 3.14159;
 
       vec2 tCoord = vec2(u, v);

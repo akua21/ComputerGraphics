@@ -11,51 +11,47 @@
     precision mediump float;
     attribute vec4 a_Position;
 
-    attribute vec4 a_Color;
-    varying vec4 v_Color;
+    attribute vec2 texCoord;
+    varying vec2 fTexCoord;
 
     uniform mat4 m; // model matrix in shader
     uniform mat4 v; // view matrix in shader
     uniform mat4 p; // projection matrix in shader
 
-    uniform mat4 mtex; // texture matrix
-    varying vec4 normal;
-
     void main() {
-      normal = mtex * a_Position;
-      gl_Position = p * v * m * normal;
-      // v_Color = ambient + diffuse;
+      gl_Position = p * v * m * a_Position; // transforming the coords
+      fTexCoord = texCoord;
     }
   </script>
 
   <script id="fragment-shader" type="x-shader/x-fragment">
     precision mediump float;
 
-    varying vec4 normal;
-    uniform samplerCube texMap;
+    uniform sampler2D texMap;
+    varying vec2 fTexCoord;
 
-    uniform bool reflective;
-    uniform vec3 eye;
+    uniform float visibility;
 
     void main() {
-      vec3 texCoord = normal.xyz;
-      // reflective objects
-      if (reflective) {
-        vec3 view = normal.xyz - eye;
-        texCoord = reflect(view, normal.xyz); // direction of reflection as texture coordinates
+      if (visibility == 1.0) {
+        gl_FragColor = texture2D(texMap, fTexCoord);
       }
-
-      gl_FragColor = textureCube(texMap, normalize(texCoord));
+      else {
+        gl_FragColor = texture2D(texMap, fTexCoord) * vec4(visibility, visibility, visibility, 1.0);
+      }
     }
   </script>
 
   <script type ="text/javascript" src="../angelCommon/webgl-utils.js"></script>
   <script type ="text/javascript" src="../angelCommon/initShaders.js"></script>
   <script type ="text/javascript" src="../angelCommon/MV.js"></script>
-  <script src="w7_p3.js"></script>
+  <script src="w8_p3.js"></script>
 
 
   <body>
     <canvas id="gl-canvas" width="512" height="512"></canvas>
+    <br>
+    <br>
+    <button id="circulatingLight">Circulating Light</button><p>(on/off)</p>
   </body>
 </html>

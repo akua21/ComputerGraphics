@@ -2,17 +2,17 @@ var gl;
 var canvas;
 
 // Vertex positions of the tetrahedron
-var va = vec4(0.0, 0.0, -1.0, 1);
-var vb = vec4(0.0, 0.942809, 0.333333, 1);
-var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
-var vd = vec4(0.816497, -0.471405, 0.333333, 1);
+var va = vec4(0.0, 0.0, 1.0, 1);
+var vb = vec4(0.0, 0.942809, -0.333333, 1);
+var vc = vec4(-0.816497, -0.471405, -0.333333, 1);
+var vd = vec4(0.816497, -0.471405, -0.333333, 1);
 
 // Light
 var lightPosition = vec4(0.0, 0.0, -1.0, 0.0);
 var lightEmission = vec4(1.0, 1.0, 1.0, 1.0);
 
-var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
-var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+// var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
+// var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
 
 
 // Matrix
@@ -22,9 +22,6 @@ var v = mat4();   // view matrix
 var p = mat4();    // projection matrix
 
 var mtex = mat4(); // texture matrix
-
-var modelViewMatrix;
-var normalMatrix; // normal matrix
 
 var fovy = 45.0; // angle between the top and bottom planes of the clipping volume
 var aspect = 1.0; // aspect ratio
@@ -143,8 +140,9 @@ window.onload = function init(){
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-  var ambientProduct = mult(lightEmission, materialAmbient);
-  var diffuseProduct = mult(lightEmission, materialDiffuse);
+
+  // var ambientProduct = mult(lightEmission, materialAmbient);
+  // var diffuseProduct = mult(lightEmission, materialDiffuse);
 
   tetrahedron(va, vb, vc, vd, numSubdivs);
 
@@ -166,15 +164,14 @@ window.onload = function init(){
   projLoc = gl.getUniformLocation(program, "p"); // get location of projection matrix in shader
   mLoc = gl.getUniformLocation(program, "m"); // get location of model matrix in shader
   vLoc = gl.getUniformLocation(program, "v"); // get location of view matrix in shader
-  normLoc = gl.getUniformLocation(program, "normalMatrix"); // get location of normal matrix in shader
 
   mtexLoc = gl.getUniformLocation(program, "mtex"); // get location of texture matrix in shader
   eyeLoc = gl.getUniformLocation(program, "eye"); // get location of eye in shader
   reflectiveLoc = gl.getUniformLocation(program, "reflective"); // get location of reflective in shader
 
-  gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct));
-  gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct));
-  gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),flatten(lightPosition));
+  // gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct));
+  // gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct));
+  // gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),flatten(lightPosition));
 
 
 
@@ -209,30 +206,21 @@ function render(){
   alpha += dr;
 
   eye = vec3(radius*Math.sin(alpha), 0, radius*Math.cos(alpha));
-
   v = lookAt(eye, at, up);
   p = perspective(fovy, aspect, near, far);
-
-  modelViewMatrix = mult(m, v);
-  normalMatrix = [
-    vec3(modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2]),
-    vec3(modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2]),
-    vec3(modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2])
-  ];
 
 
   gl.uniformMatrix4fv(mLoc, false, flatten(m)); // copy m to uniform value in shader
   gl.uniformMatrix4fv(vLoc, false, flatten(v)); // copy v to uniform value in shader
   gl.uniformMatrix4fv(projLoc, false, flatten(p)); // copy p to uniform value in shader
-  gl.uniformMatrix3fv(normLoc, false, flatten(normalMatrix)); // copy normalMatrix to uniform value in shader
 
-  gl.uniform3fv(eyeLoc, flatten(eye)) // eye
+  gl.uniform3fv(eyeLoc, flatten(eye)); // eye
 
   // quad
   mtex = mult(inverse4(v), inverse4(p));
   gl.uniformMatrix4fv(mtexLoc, false, flatten(mtex)); // copy mtex to uniform value in shader
   gl.uniform1i(reflectiveLoc, 0); // not reflective
-  
+
   gl.drawArrays(gl.TRIANGLES, 0, 6);
 
 

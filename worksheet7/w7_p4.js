@@ -11,8 +11,8 @@ var vd = vec4(0.816497, -0.471405, -0.333333, 1);
 var lightPosition = vec4(0.0, 0.0, -1.0, 0.0);
 var lightEmission = vec4(1.0, 1.0, 1.0, 1.0);
 
-var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
-var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+// var materialAmbient = vec4( 1.0, 0.0, 1.0, 1.0 );
+// var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
 
 
 // Matrix
@@ -21,8 +21,7 @@ var m = mat4();   // model matrix
 var v = mat4();   // view matrix
 var p = mat4();    // projection matrix
 
-var modelViewMatrix;
-var normalMatrix; // normal matrix
+var mtex = mat4(); // texture matrix
 
 var fovy = 45.0; // angle between the top and bottom planes of the clipping volume
 var aspect = 1.0; // aspect ratio
@@ -39,7 +38,6 @@ var radius = 4.0;
 var dr = 0.3 * Math.PI/180.0;
 
 var numSubdivs = 5;
-var index = 0;
 var pointsArray = [];
 var normalsArray = [];
 
@@ -52,8 +50,6 @@ function triangle(a, b, c){
   normalsArray.push(vec4(a[0], a[1], a[2], 0.0));
   normalsArray.push(vec4(b[0], b[1], b[2], 0.0));
   normalsArray.push(vec4(c[0], c[1], c[2], 0.0));
-
-  index += 3;
 }
 
 
@@ -83,7 +79,6 @@ function tetrahedron(a, b, c, d, n){
 
 
 
-
 // Texture
 var g_tex_ready = 0;
 
@@ -95,9 +90,10 @@ function initTexture(gl, program){
                  '../assets/textures/cm_back.png', // POSITIVE_Z
                  '../assets/textures/cm_front.png']; // NEGATIVE_Z
 
-  gl.activeTexture(gl.TEXTURE0);
   var texture = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE0);
   gl.bindTexture(gl.TEXTURE_CUBE_MAP, texture);
+
   gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   gl.texParameteri(gl.TEXTURE_CUBE_MAP, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
 
@@ -126,8 +122,7 @@ function initTexture(gl, program){
 
 
 
-
-window.onload = function init(ev, callRender=true){
+window.onload = function init(){
 
   canvas = document.getElementById("gl-canvas");
   gl = WebGLUtils.setupWebGL(canvas);
@@ -144,49 +139,90 @@ window.onload = function init(ev, callRender=true){
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-  var ambientProduct = mult(lightEmission, materialAmbient);
-  var diffuseProduct = mult(lightEmission, materialDiffuse);
+  // var ambientProduct = mult(lightEmission, materialAmbient);
+  // var diffuseProduct = mult(lightEmission, materialDiffuse);
 
   tetrahedron(va, vb, vc, vd, numSubdivs);
 
 
   // Normals
   var nBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
-
-  var vNormal = gl.getAttribLocation(program, "v_Normal");
-  gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(vNormal);
-
+  // gl.bindBuffer(gl.ARRAY_BUFFER, nBuffer);
+  // gl.bufferData(gl.ARRAY_BUFFER, flatten(normalsArray), gl.STATIC_DRAW);
+  //
+  // var vNormal = gl.getAttribLocation(program, "v_Normal");
+  // gl.vertexAttribPointer(vNormal, 4, gl.FLOAT, false, 0, 0);
+  // gl.enableVertexAttribArray(vNormal);
 
 
   // Vertices
   var vBuffer = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
-
-  var vPosition = gl.getAttribLocation(program, "a_Position");
-  gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
-  gl.enableVertexAttribArray(vPosition);
 
 
   projLoc = gl.getUniformLocation(program, "p"); // get location of projection matrix in shader
   mLoc = gl.getUniformLocation(program, "m"); // get location of model matrix in shader
   vLoc = gl.getUniformLocation(program, "v"); // get location of view matrix in shader
-  normLoc = gl.getUniformLocation(program, "normalMatrix"); // get location of normal matrix in shader
 
+  mtexLoc = gl.getUniformLocation(program, "mtex"); // get location of texture matrix in shader
+  eyeLoc = gl.getUniformLocation(program, "eye"); // get location of eye in shader
+  reflectiveLoc = gl.getUniformLocation(program, "reflective"); // get location of reflective in shader
 
-  gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct));
-  gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct));
-  gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),flatten(lightPosition));
+  normTexMapLoc = gl.getUniformLocation(program, "normTexMap"); // get location of normTexMap in shader
+
+  // gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct));
+  // gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct));
+  // gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),flatten(lightPosition));
 
 
 
   // Texture
   initTexture(gl, program);
 
+
+  var quad_vertices = [
+    vec4(-1, -1, 0.999, 1.0),
+    vec4(1, -1, 0.999, 1.0),
+    vec4(-1, 1, 0.999, 1.0),
+
+    vec4(1, -1, 0.999, 1.0),
+    vec4(1, 1, 0.999, 1.0),
+    vec4(-1, 1, 0.999, 1.0)
+  ];
+
+  pointsArray = quad_vertices.concat(pointsArray);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, flatten(pointsArray), gl.STATIC_DRAW);
+  var vPosition = gl.getAttribLocation(program, "a_Position");
+  gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
+  gl.enableVertexAttribArray(vPosition);
+
+
+  // Normal map
+  var normalTexture = gl.createTexture();
+  gl.activeTexture(gl.TEXTURE1);
+  gl.bindTexture(gl.TEXTURE_2D, normalTexture);
+
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+
+
+  var img = document.createElement('img');
+  img.crossorigin = 'anonymous';
+
+  img.onload = function(event) {
+    var img = event.target;
+    gl.activeTexture(gl.TEXTURE1);
+    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, img);
+
+    gl.generateMipmap(gl.TEXTURE_2D);
+  };
+  img.src = '../assets/textures/normalmap.png';
+
+  gl.uniform1i(gl.getUniformLocation(program, "normTexMap"), 1);
+
 }
+
 
 
 function render(){
@@ -199,23 +235,27 @@ function render(){
   v = lookAt(eye, at, up);
   p = perspective(fovy, aspect, near, far);
 
-  modelViewMatrix = mult(m, v);
-  normalMatrix = [
-    vec3(modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2]),
-    vec3(modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2]),
-    vec3(modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2])
-  ];
-
 
   gl.uniformMatrix4fv(mLoc, false, flatten(m)); // copy m to uniform value in shader
   gl.uniformMatrix4fv(vLoc, false, flatten(v)); // copy v to uniform value in shader
   gl.uniformMatrix4fv(projLoc, false, flatten(p)); // copy p to uniform value in shader
-  gl.uniformMatrix3fv(normLoc, false, flatten(normalMatrix)); // copy normalMatrix to uniform value in shader
+
+  gl.uniform3fv(eyeLoc, flatten(eye)) // eye
+
+  // quad
+  mtex = mult(inverse4(v), inverse4(p));
+  gl.uniformMatrix4fv(mtexLoc, false, flatten(mtex)); // copy mtex to uniform value in shader
+  gl.uniform1i(reflectiveLoc, 0); // not reflective
+
+  gl.drawArrays(gl.TRIANGLES, 0, 6);
 
 
-  for (var i = 0; i < index; i += 3) {
-    gl.drawArrays(gl.TRIANGLES, i, 3);
-  }
+  // sphere
+  mtex = mat4();
+  gl.uniformMatrix4fv(mtexLoc, false, flatten(mtex)); // copy mtex to uniform value in shader
+  gl.uniform1i(reflectiveLoc, 1); // reflective
+
+  gl.drawArrays(gl.TRIANGLES, 6, pointsArray.length-6);
 
   window.requestAnimFrame(render);
 }
