@@ -16,7 +16,6 @@
     uniform mat4 m; // model matrix in shader
     uniform mat4 v; // view matrix in shader
     uniform mat4 p; // projection matrix in shader
-    uniform mat3 normalMatrix; // normal matrix shader
 
     uniform vec4 ambientProduct;
     uniform vec4 diffuseProduct;
@@ -36,7 +35,7 @@
         L = normalize(light - pos);
       }
 
-      vec3 N = normalize(normalMatrix * v_Normal.xyz);
+      vec3 N = normalize((v * m * v_Normal).xyz);
 
 
       vec4 ambient = ambientProduct;

@@ -2,10 +2,10 @@ var gl;
 var canvas;
 
 // Vertex positions of the tetrahedron
-var va = vec4(0.0, 0.0, -1.0, 1);
-var vb = vec4(0.0, 0.942809, 0.333333, 1);
-var vc = vec4(-0.816497, -0.471405, 0.333333, 1);
-var vd = vec4(0.816497, -0.471405, 0.333333, 1);
+var va = vec4(0.0, 0.0, 1.0, 1);
+var vb = vec4(0.0, 0.942809, -0.333333, 1);
+var vc = vec4(-0.816497, -0.471405, -0.333333, 1);
+var vd = vec4(0.816497, -0.471405, -0.333333, 1);
 
 // Light
 var lightPosition = vec4(0.0, 0.0, -1.0, 0.0);
@@ -31,9 +31,6 @@ var le = 1.0;
 var m = mat4();   // model matrix
 var v = mat4();   // view matrix
 var p = mat4();    // projection matrix
-
-var modelViewMatrix;
-var normalMatrix; // normal matrix
 
 var fovy = 45.0; // angle between the top and bottom planes of the clipping volume
 var aspect = 1.0; // aspect ratio
@@ -149,7 +146,7 @@ window.onload = function init(){
   projLoc = gl.getUniformLocation(program, "p"); // get location of projection matrix in shader
   mLoc = gl.getUniformLocation(program, "m"); // get location of model matrix in shader
   vLoc = gl.getUniformLocation(program, "v"); // get location of view matrix in shader
-  normLoc = gl.getUniformLocation(program, "normalMatrix"); // get location of normal matrix in shader
+  
 
 
 
@@ -224,18 +221,9 @@ function render(){
   v = lookAt(eye, at, up);
   p = perspective(fovy, aspect, near, far);
 
-  modelViewMatrix = mult(m, v);
-  normalMatrix = [
-    vec3(modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2]),
-    vec3(modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2]),
-    vec3(modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2])
-  ];
-
-
   gl.uniformMatrix4fv(mLoc, false, flatten(m)); // copy m to uniform value in shader
   gl.uniformMatrix4fv(vLoc, false, flatten(v)); // copy v to uniform value in shader
   gl.uniformMatrix4fv(projLoc, false, flatten(p)); // copy p to uniform value in shader
-  gl.uniformMatrix3fv(normLoc, false, flatten(normalMatrix)); // copy normalMatrix to uniform value in shader
 
 
 

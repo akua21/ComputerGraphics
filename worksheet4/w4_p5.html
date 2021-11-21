@@ -15,7 +15,6 @@
     uniform mat4 m; // model matrix in shader
     uniform mat4 v; // view matrix in shader
     uniform mat4 p; // projection matrix in shader
-    uniform mat3 normalMatrix; // normal matrix shader
     uniform vec4 lightPosition;
 
     varying vec3 N, L, E;
@@ -33,7 +32,7 @@
       }
 
       E = -normalize(pos);
-      N = normalize(normalMatrix * v_Normal.xyz);
+      N = normalize((v * m * v_Normal).xyz);
 
       gl_Position = p * v * m * a_Position;
     }
@@ -99,7 +98,7 @@
       <br></br>
       Le: 0.0<input id="slideLe" type="range" min="0.0" max="2.0" step="0.02" value="1.0" /> 2.0
       <br> <br>
-      Alpha <input id="slideAlpha" type="range" min="0.0" max="2.1" step="0.05" value="0.0" />
+      Alpha <input id="slideAlpha" type="range" min="0.0" max="10.0" step="0.05" value="0.0" />
     </div>
 
   </body>

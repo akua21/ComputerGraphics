@@ -16,7 +16,6 @@
     uniform mat4 m; // model matrix in shader
     uniform mat4 v; // view matrix in shader
     uniform mat4 p; // projection matrix in shader
-    uniform mat3 normalMatrix; // normal matrix shader
 
     uniform vec4 ambientProduct;
     uniform vec4 diffuseProduct;
@@ -46,7 +45,7 @@
 
     	vec3 E = -normalize(pos); // vector from the vertex position to the eye
       vec3 H = normalize(L + E); // halfway vector
-      vec3 N = normalize(normalMatrix * v_Normal.xyz); // transform vertex normal into eye coordinates
+      vec3 N = normalize((v * m * v_Normal).xyz); // transform vertex normal into eye coordinates
 
       vec4 ambient = ambientProduct * ka;
 
@@ -95,7 +94,7 @@
       <br></br>
       Le: 0.0<input id="slideLe" type="range" min="0.0" max="2.0" step="0.02" value="1.0" /> 2.0
       <br> <br>
-      Alpha <input id="slideAlpha" type="range" min="0.0" max="2.1" step="0.05" value="0.0" />
+      Alpha <input id="slideAlpha" type="range" min="0.0" max="10.0" step="0.05" value="0.0" />
     </div>
 
   </body>

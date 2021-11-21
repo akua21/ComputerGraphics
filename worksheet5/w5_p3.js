@@ -2,19 +2,14 @@ var gl;
 var canvas;
 
 // Matrix
-
 var m = mat4();   // model matrix
 var v = mat4();   // view matrix
 var p = mat4();    // projection matrix
-
-var modelViewMatrix;
-var normalMatrix; // normal matrix
 
 var fovy = 45.0; // angle between the top and bottom planes of the clipping volume
 var aspect = 1.0; // aspect ratio
 var near = 0.1; // distance from the viewer to the near clipping plane
 var far = 500.0; // distance from the viewer to the far clipping plane
-
 
 var eye = vec3(0.0, 20.0, 300.0);
 var at = vec3(0.0, 20.0, 0.0);
@@ -45,15 +40,13 @@ window.onload = function main() {
   gl.useProgram(program);
 
   program.a_Position = gl.getAttribLocation(program, 'a_Position');
-  program.a_Normal = gl.getAttribLocation(program, 'v_Normal');
+  program.a_Normal = gl.getAttribLocation(program, 'a_Normal'); // !!!! review, something wrong
   program.a_Color = gl.getAttribLocation(program, 'a_Color');
 
 
   projLoc = gl.getUniformLocation(program, "p"); // get location of projection matrix in shader
   mLoc = gl.getUniformLocation(program, "m"); // get location of model matrix in shader
   vLoc = gl.getUniformLocation(program, "v"); // get location of view matrix in shader
-  normLoc = gl.getUniformLocation(program, "normalMatrix"); // get location of normal matrix in shader
-
 
 
   // Prepare empty buffer objects for vertex coordinates, colors, and normals
@@ -144,24 +137,15 @@ function render(gl, model) {
   v = lookAt(eye, at, up);
   p = perspective(fovy, aspect, near, far);
 
-  modelViewMatrix = mult(m, v);
-  normalMatrix = [
-    vec3(modelViewMatrix[0][0], modelViewMatrix[0][1], modelViewMatrix[0][2]),
-    vec3(modelViewMatrix[1][0], modelViewMatrix[1][1], modelViewMatrix[1][2]),
-    vec3(modelViewMatrix[2][0], modelViewMatrix[2][1], modelViewMatrix[2][2])
-  ];
-
 
   gl.uniformMatrix4fv(mLoc, false, flatten(m)); // copy m to uniform value in shader
   gl.uniformMatrix4fv(vLoc, false, flatten(v)); // copy v to uniform value in shader
   gl.uniformMatrix4fv(projLoc, false, flatten(p)); // copy p to uniform value in shader
-  gl.uniformMatrix3fv(normLoc, false, flatten(normalMatrix)); // copy normalMatrix to uniform value in shader
 
 
   if (!g_drawingInfo && g_objDoc && g_objDoc.isMTLComplete()) {
    // OBJ and all MTLs are available
    g_drawingInfo = onReadComplete(gl, model, g_objDoc);
-
   }
   if (!g_drawingInfo) return;
   gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length,                   gl.UNSIGNED_SHORT, 0);
