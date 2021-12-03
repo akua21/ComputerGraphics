@@ -10,22 +10,20 @@
   <script id ="teapot-vertex-shader" type="x-shader/x-vertex">
     precision mediump float;
     attribute vec4 a_Position;
-    attribute vec4 a_Normal;
+    attribute vec3 a_Normal;
+
+    uniform vec4 lightPosition;
+    varying vec3 N, L, E;
 
     uniform mat4 m; // model matrix in shader
     uniform mat4 v; // view matrix in shader
     uniform mat4 p; // projection matrix in shader
 
-    varying vec3 L; // vector from vertex position to light source
-    varying vec3 E; // vector from the vertex position to the eye
-    varying vec3 N; // transform vertex normal into eye coordinates
-
-    uniform vec4 lightPosition;
-
     uniform mat4 ctm; // CTM matrix
 
+
     void main() {
-      vec3 pos = (v * m * a_Position).xyz; // vertex position in eye coordinates !!!!!!!!! m * v?
+      vec3 pos = (v * m * a_Position).xyz; // vertex position in eye coordinates
       vec3 light = (v * lightPosition).xyz;
 
       // check for directional light
@@ -37,7 +35,7 @@
       }
 
     	E = -normalize(pos);
-      N = normalize((v * m * a_Normal).xyz);
+      N = normalize((v * m * vec4(a_Normal, 0.0)).xyz);
 
       gl_Position = p * v * m * ctm * a_Position;
     }
@@ -46,30 +44,28 @@
   <script id="teapot-fragment-shader" type="x-shader/x-fragment">
     precision mediump float;
 
-    varying vec3 L, E, N;
-
     uniform vec4 ambientProduct;
     uniform vec4 diffuseProduct;
     uniform vec4 specularProduct;
-
-
     uniform float shininess;
 
+    varying vec3 N, L, E;
+
     uniform bool shadow;
+
 
     void main() {
       if (shadow) {
         gl_FragColor = vec4(0.0, 0.0, 0.0, 0.5);
       }
       else {
-        vec3 H = normalize(L + E); // halfway vector
-
+        vec3 H = normalize(L) + normalize(E);
         vec4 ambient = ambientProduct;
-        vec4 diffuse = max(dot(L, N), 0.0) * diffuseProduct;
-        vec4 specular = pow(max(dot(N, H), 0.0), shininess) * specularProduct;
+        vec4 diffuse = max(dot(normalize(L), normalize(N)), 0.0) * diffuseProduct;
+        vec4 specular = pow(max(dot(normalize(N), H), 0.0), shininess) * specularProduct;
 
-        if(dot(L, N) < 0.0){
-    	     specular = vec4(0.0, 0.0, 0.0, 1.0);
+        if(dot(normalize(L), normalize(N)) < 0.0){
+           specular = vec4(0.0, 0.0, 0.0, 1.0);
         }
 
         vec4 v_Color = ambient + diffuse + specular;
@@ -105,16 +101,8 @@
     uniform sampler2D texMap;
     varying vec2 fTexCoord;
 
-    // uniform float visibility;
-
     void main() {
       gl_FragColor = texture2D(texMap, fTexCoord);
-      // if (visibility == 1.0) {
-      //   gl_FragColor = texture2D(texMap, fTexCoord);
-      // }
-      // else {
-      //   gl_FragColor = texture2D(texMap, fTexCoord) * vec4(visibility, visibility, visibility, 1.0);
-      // }
     }
   </script>
 
@@ -130,5 +118,7 @@
     <br>
     <br>
     <button id="circulatingLight">Circulating Light</button><p>(on/off)</p>
+    <br>
+    <button id="movingTeapot">Move Teapot</button><p>(on/off)</p>
   </body>
 </html>

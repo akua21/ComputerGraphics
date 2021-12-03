@@ -14,16 +14,15 @@ window.onload = function init (){
 
   gl.teapot_program = teapot_program;
   gl.ground_program = ground_program;
-  // gl.useProgram(program);
   gl.enable(gl.DEPTH_TEST);
 
 
   // Light
-  var starting_light_pos = vec4(0.0, 2.0, -2.0, 1.0); // !!!! other?
+  var starting_light_pos = vec4(0.0, 2.0, 0.0, 1.0);
   var light_pos = vec4(starting_light_pos);
   var radius = 2.0;
   var alpha = 0.0;
-  var dr = 0.3 * Math.PI/180.0;
+  var dr = 0.8 * Math.PI/180.0;
   var static = true;
 
   var materialAmbient = vec4(1.0, 1.0, 1.0, 1.0);
@@ -33,9 +32,12 @@ window.onload = function init (){
 
   var lightEmission = vec4(1.0, 1.0, 1.0, 1.0);
 
-  var ambientProduct = mult(lightEmission, materialAmbient);
-  var diffuseProduct = mult(lightEmission, materialDiffuse);
-  var specularProduct = mult(lightEmission, materialSpecular);
+  // Teapot movement
+  var jump = false;
+  var top_limit = 100;
+  var bottom_limit = 0;
+  var direction = 1;
+  var change = 0;
 
 
   // Vertices
@@ -95,13 +97,13 @@ window.onload = function init (){
 
 
   // Matrix
-  var mG = mat4();   // model matrix
-  var vG = mat4();   // view matrix
-  var pG = mat4();    // projection matrix
+  var mG = mat4();   // model matrix ground
+  var vG = mat4();   // view matrix ground
+  var pG = mat4();   // projection matrix ground
 
-  var mT = mat4();   // model matrix
-  var vT = mat4();   // view matrix
-  var pT = mat4();    // projection matrix
+  var mT = mat4();   // model matrix teapot
+  var vT = mat4();   // view matrix teapot
+  var pT = mat4();   // projection matrix teapot
 
 
   var mshadow = mat4(); // shadow model matrix
@@ -110,7 +112,7 @@ window.onload = function init (){
   mshadow[3][3] = 0.0;
 
 
-  var mtranslate = mat4();
+  var mtranslate = mat4(); // translation matrix
   var tx = 0.0;
   var ty = -1.0;
   var tz = -3.0;
@@ -137,20 +139,35 @@ window.onload = function init (){
   mTLoc = gl.getUniformLocation(teapot_program, "m");
   vTLoc = gl.getUniformLocation(teapot_program, "v");
 
+  ambientProductLoc = gl.getUniformLocation(teapot_program, "ambientProduct");
+  diffuseProductLoc = gl.getUniformLocation(teapot_program, "diffuseProduct");
+  specularProductLoc = gl.getUniformLocation(teapot_program, "specularProduct");
   lightPosLoc = gl.getUniformLocation(teapot_program, "lightPosition");
+  shininessLoc = gl.getUniformLocation(teapot_program, "shininess");
 
   shadowLoc = gl.getUniformLocation(teapot_program, "shadow");
-
   ctmLoc = gl.getUniformLocation(teapot_program, "ctm");
+
+
+  var ambientProduct = mult(lightEmission, scale(0.5, materialAmbient));
+  var diffuseProduct = mult(lightEmission, scale(0.5, materialDiffuse));
+  var specularProduct = mult(lightEmission, scale(0.5, materialSpecular));
 
 
   gl.useProgram(teapot_program);
 
-  gl.uniform4fv(gl.getUniformLocation(teapot_program, "ambientProduct"),flatten(ambientProduct));
-  gl.uniform4fv(gl.getUniformLocation(teapot_program, "diffuseProduct"),flatten(diffuseProduct));
-  gl.uniform4fv(gl.getUniformLocation(teapot_program, "specularProduct"),flatten(specularProduct));
-  gl.uniform4fv(gl.getUniformLocation(teapot_program, "lightPosition"),flatten(light_pos));
-  gl.uniform1f(gl.getUniformLocation(teapot_program, "shininess"), materialShininess);
+  vT = lookAt(eye, at, up);
+  pT = perspective(fovy, aspect, near, far);
+
+  gl.uniformMatrix4fv(mTLoc, false, flatten(mT));
+  gl.uniformMatrix4fv(vTLoc, false, flatten(vT));
+  gl.uniformMatrix4fv(pTLoc, false, flatten(pT));
+
+  gl.uniform4fv(ambientProductLoc,flatten(ambientProduct));
+  gl.uniform4fv(diffuseProductLoc,flatten(diffuseProduct));
+  gl.uniform4fv(specularProductLoc,flatten(specularProduct));
+  gl.uniform4fv(lightPosLoc,flatten(light_pos));
+  gl.uniform1f(shininessLoc, materialShininess);
 
 
 
@@ -159,6 +176,12 @@ window.onload = function init (){
   var circulatingLight = document.getElementById("circulatingLight");
   circulatingLight.addEventListener("click", function (ev) {
     static = !static;
+  });
+
+
+  var movingTeapot = document.getElementById("movingTeapot");
+  movingTeapot.addEventListener("click", function (ev) {
+    jump = !jump;
   });
 
 
@@ -175,9 +198,8 @@ window.onload = function init (){
   var model = initVertexBuffers(gl, gl.teapot_program);
 
   // Start reading the OBJ file
-  readOBJFile('../assets/teapot.obj', gl, model, 0.25, true); // !!!!! probar 1.0 en vez de 60
-  // draw(gl, gl.program, currentAngle, viewProjMatrix, model);
-  // render(gl, model);
+  readOBJFile('../assets/teapot.obj', gl, model, 0.25, true);
+
   var interval = setInterval(function(){render(gl, model)},1000);
 
 
@@ -246,8 +268,6 @@ window.onload = function init (){
     gl.bufferData(gl.ARRAY_BUFFER, drawingInfo.vertices,gl.STATIC_DRAW);
     gl.bindBuffer(gl.ARRAY_BUFFER, model.normalBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, drawingInfo.normals, gl.STATIC_DRAW);
-    // gl.bindBuffer(gl.ARRAY_BUFFER, model.colorBuffer);
-    // gl.bufferData(gl.ARRAY_BUFFER, drawingInfo.colors, gl.STATIC_DRAW);
     // Write the indices to the buffer object
     gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.indexBuffer);
     gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, drawingInfo.indices, gl.STATIC_DRAW);
@@ -263,7 +283,6 @@ window.onload = function init (){
 
 
 
-  // gl.useProgram(teapot_program);
   function render(){
     if (!g_drawingInfo && g_objDoc && g_objDoc.isMTLComplete()) {
      // OBJ and all MTLs are available
@@ -271,17 +290,32 @@ window.onload = function init (){
     }
     if (!g_drawingInfo) return;
 
+    clearInterval(interval);
 
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BI);
 
+    // Light circulating
     if (!static) {
       alpha += dr;
     }
 
+    // Teapot moving
+    if (jump) {
+      if (change >= top_limit) {
+        direction = -1;
+      }
+      if (change <= bottom_limit) {
+        direction = 1;
+      }
+      change += direction;
+      mtranslate = mult(mtranslate, translate(vec3(0.0, 0.005 * direction, 0.0)));
+    }
+
+
     light_pos = vec4(starting_light_pos);
 
     light_pos[0] = starting_light_pos[0] + radius * Math.sin(alpha);
-    light_pos[2] = starting_light_pos[2] + radius * Math.cos(alpha);
+    light_pos[2] = starting_light_pos[2] + radius * Math.cos(alpha)-2;
 
     // Ground
     gl.useProgram(ground_program);
@@ -304,9 +338,16 @@ window.onload = function init (){
 
     vT = lookAt(eye, at, up);
     pT = perspective(fovy, aspect, near, far);
-
     gl.uniformMatrix4fv(ctmLoc, false, flatten(mtranslate));
 
+    ambientProduct = mult(lightEmission, scale(0.5, materialAmbient));
+    diffuseProduct = mult(lightEmission, scale(0.5, materialDiffuse));
+    specularProduct = mult(lightEmission, scale(0.5, materialSpecular));
+
+    gl.uniform4fv(ambientProductLoc,flatten(ambientProduct));
+    gl.uniform4fv(diffuseProductLoc,flatten(diffuseProduct));
+    gl.uniform4fv(specularProductLoc,flatten(specularProduct));
+    gl.uniform1f(shininessLoc, materialShininess);
 
     initAttributeVariable(gl, gl.teapot_program.a_Position, model.vertexBuffer);
     initAttributeVariable(gl, gl.teapot_program.a_Normal, model.normalBuffer);
@@ -316,7 +357,6 @@ window.onload = function init (){
     gl.depthFunc(gl.GREATER);
     gl.uniform1i(gl.getUniformLocation(teapot_program, "shadow"), 1);
 
-
     vT = mult(vT, translate(vec3(light_pos[0], light_pos[1] - offset, light_pos[2])));
     vT = mult(vT, mshadow);
     vT = mult(vT, translate(vec3(-light_pos[0], -light_pos[1] - offset, -light_pos[2])));
@@ -325,12 +365,9 @@ window.onload = function init (){
     gl.uniformMatrix4fv(mTLoc, false, flatten(mT));
     gl.uniformMatrix4fv(pTLoc, false, flatten(pT));
 
-    gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length,                   gl.UNSIGNED_SHORT, 0);
-
-
+    gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
 
     gl.depthFunc(gl.LESS);
-    // reset view ¿?
     vT = lookAt(eye, at, up);
     pT = perspective(fovy, aspect, near, far);
 
@@ -340,12 +377,9 @@ window.onload = function init (){
     gl.uniformMatrix4fv(pTLoc, false, flatten(pT));
     gl.uniform4fv(lightPosLoc, light_pos);
 
+    gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
 
-    gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length,                   gl.UNSIGNED_SHORT, 0);
-
-
-    // window.requestAnimFrame(render);
+    window.requestAnimFrame(render);
   }
 
-  render();
 }

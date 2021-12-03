@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="./style_final_project.css">
+  </head>
+
+
+  <script id ="vertex-shader" type="x-shader/x-vertex">
+    precision mediump float;
+    attribute vec4 a_Position;
+
+    attribute vec4 a_Color;
+    varying vec4 v_Color;
+
+    attribute vec2 texCoord;
+    varying vec2 fTexCoord;
+
+    attribute vec4 v_Normal;
+    varying vec4 fNormal;
+
+    uniform mat4 m; // model matrix in shader
+    uniform mat4 v; // view matrix in shader
+    uniform mat4 p; // projection matrix in shader
+
+    uniform vec4 ambientProduct;
+
+    uniform vec3 lightEmission;
+    uniform vec3 lightDirection;
+
+
+    void main() {
+      vec4 ambient = ambientProduct;
+      vec3 diffuse = max(dot(lightDirection, a_Position.xyz), 0.0) * lightEmission;
+
+      gl_Position = p * v * m * a_Position;
+      v_Color = ambient + vec4(diffuse, 1.0);
+
+
+      fTexCoord = texCoord;
+      fNormal = v_Normal;
+    }
+  </script>
+
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 v_Color;
+
+    uniform sampler2D texMap;
+
+    varying vec4 fNormal;
+
+    void main() {
+      float u = 1.0 - (atan(fNormal.z, fNormal.x) / (2.0 * 3.14159));
+      float v = 1.0 - acos(fNormal.y) / 3.14159;
+
+      vec2 tCoord = vec2(u, v);
+
+      gl_FragColor = texture2D(texMap, tCoord) * v_Color;
+    }
+  </script>
+
+  <script type ="text/javascript" src="../angelCommon/webgl-utils.js"></script>
+  <script type ="text/javascript" src="../angelCommon/initShaders.js"></script>
+  <script type ="text/javascript" src="../angelCommon/MV.js"></script>
+  <script src="create_matcap.js"></script>
+
+
+  <body>
+    <h1>Create MatCap</h1>
+    <canvas id="gl-canvas" width="512" height="512"></canvas>
+    <button><a id="download" download="mymatcap.jpg" href="" onclick="download_img(this);">Save Matcap</a></button>
+  </body>
+</html>

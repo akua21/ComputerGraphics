@@ -1,0 +1,79 @@
+body {
+  padding: 10px 20px;
+  font-family: "Lucida Console", "Courier New", monospace;
+  color: white;
+  background-color: #212121;
+}
+
+/* View MatCap page */
+.container {
+  display: flex;
+}
+
+.menus {
+  padding-left: 10px;
+}
+
+.loadMatcapOption {
+  padding-top: 10px;
+}
+
+#myImgMatcap {
+  width: 100%;
+}
+
+.divMatcapImg {
+  width: 120px;
+  height: auto;
+  overflow: hidden;
+  padding-top: 10px;
+}
+
+/* Create texture page */
+.topButtons {
+  padding-left: 10px;
+}
+
+#download {
+  text-decoration: none;
+  color: black;
+
+}
+
+.colorSettings {
+  display: flex;
+}
+
+.background {
+  display: flex;
+  align-items: center;
+  width: 600px;
+}
+
+.divColorBckgrnd {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.divLoadBckgrnd {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-left: 40px;
+}
+
+.pencil {
+  display: flex;
+  align-items: center;
+  width: 100px;
+  padding-top: 13px;
+}
+
+.penColor {
+  padding-left: 100px;
+}
+
+#clearButton {
+  margin-top: 20px;
+}

@@ -35,12 +35,11 @@ window.onload = function main() {
   gl.enable(gl.CULL_FACE);
 
   // Get the storage locations of attribute and uniform variables
-  // var program = gl.program;
   var program = initShaders(gl, "vertex-shader", "fragment-shader");
   gl.useProgram(program);
 
   program.a_Position = gl.getAttribLocation(program, 'a_Position');
-  program.a_Normal = gl.getAttribLocation(program, 'a_Normal'); // !!!! review, something wrong
+  program.a_Normal = gl.getAttribLocation(program, 'a_Normal');
   program.a_Color = gl.getAttribLocation(program, 'a_Color');
 
 
@@ -54,8 +53,7 @@ window.onload = function main() {
 
   // Start reading the OBJ file
   readOBJFile('../assets/monkey.obj', gl, model, 60, true);
-  // draw(gl, gl.program, currentAngle, viewProjMatrix, model);
-  // render(gl, model);
+
   var interval = setInterval(function(){render(gl, model)},1000);
 }
 
@@ -63,7 +61,7 @@ window.onload = function main() {
 // Create a buffer object and perform the initial configuration
 function initVertexBuffers(gl, program) {
   var o = new Object();
-  o.vertexBuffer = createEmptyArrayBuffer(gl, program.a_Position, 3, gl.FLOAT); //3
+  o.vertexBuffer = createEmptyArrayBuffer(gl, program.a_Position, 3, gl.FLOAT);
   o.normalBuffer = createEmptyArrayBuffer(gl, program.a_Normal, 3, gl.FLOAT);
   o.colorBuffer = createEmptyArrayBuffer(gl, program.a_Color, 4, gl.FLOAT);
   o.indexBuffer = gl.createBuffer();
@@ -149,5 +147,4 @@ function render(gl, model) {
   }
   if (!g_drawingInfo) return;
   gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length,                   gl.UNSIGNED_SHORT, 0);
-  // window.requestAnimFrame(render);
 }

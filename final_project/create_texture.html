@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title></title>
+    <link rel="stylesheet" href="../style.css">
+    <link rel="stylesheet" href="./style_final_project.css">
+  </head>
+
+  <script id ="vertex-shader" type="x-shader/x-vertex">
+    attribute vec4 a_Position;
+    attribute vec4 a_Color;
+    varying vec4 v_Color;
+    void main() {
+      gl_Position = a_Position;
+      gl_PointSize = 10.0;
+      v_Color = a_Color;
+    }
+  </script>
+
+  <script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+    varying vec4 v_Color;
+    void main() {
+      gl_FragColor = v_Color;
+    }
+  </script>
+
+  <script type ="text/javascript" src="../angelCommon/webgl-utils.js"></script>
+  <script type ="text/javascript" src="../angelCommon/initShaders.js"></script>
+  <script type ="text/javascript" src="../angelCommon/MV.js"></script>
+  <script src="create_texture.js"></script>
+
+
+  <body>
+    <h1>Create texture</h1>
+    <div class="container">
+      <canvas id="gl-canvas" width="1024" height="512"></canvas>
+
+
+      <div class="topButtons">
+        <button><a id="download" download="mytexture.jpg" href="" onclick="download_img(this);">Save texture</a></button>
+        <button id="addPointButton">Add Point</button>
+        <button id="addTriangleButton">Add Triangle</button>
+        <button id="addCircleButton">Add Circle</button>
+      </div>
+    </div>
+
+    <div class="colorSettings">
+      <div class="bgColor">
+        <p> Background: </p>
+        <div class="background">
+          <div class="divColorBckgrnd">
+            <p>Color:</p>
+            <select id="bgMenu" size="1">
+              <option value="0">Black</option>
+              <option value="1" selected>Blue</option>
+              <option value="2">Red</option>
+            </select>
+          </div>
+
+          <div class="divLoadBckgrnd">
+            <p>Load image:</p>
+            <input type="file" id="myBckgrnd" name="myBckgrnd">
+          </div>
+          <button id="changeBackground">Apply</button>
+        </div>
+      </div>
+      <div class="penColor">
+        <p> Pencil color: </p>
+        <div class="pencil">
+          <select id="colorMenu" size="1">
+            <option value="0" selected>Red</option>
+            <option value="1">Green</option>
+            <option value="2">Blue</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button id="clearButton">Clear background</button>
+  </body>
+</html>
