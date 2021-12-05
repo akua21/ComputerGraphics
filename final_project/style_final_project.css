@@ -8,6 +8,7 @@ body {
 /* View MatCap page */
 .container {
   display: flex;
+  align-items:flex-start;
 }
 
 .menus {
@@ -29,15 +30,66 @@ body {
   padding-top: 10px;
 }
 
+
+/* Create matcap page */
+.divLightSettings {
+  display: flex;
+  margin-top: 5px;
+}
+
+.paramSettings {
+  margin-left: 20px;
+}
+
+#downloadTButton {
+  margin-top: 220px;
+}
+
+.loadTextureOption {
+  padding-top: 10px;
+}
+
+#myImgTexture {
+  width: 100%;
+}
+
+.divTextureImg {
+  width: 120px;
+  height: auto;
+  overflow: hidden;
+  padding-top: 10px;
+}
+
+
+
 /* Create texture page */
 .topButtons {
   padding-left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items:flex-start;
+}
+
+#addPointButton {
+  margin-bottom: 10px;
+}
+
+#addTriangleButton {
+  margin-bottom: 10px;
+}
+
+#addCircleButton {
+  margin-bottom: 10px;
+}
+
+#downloadButton {
+  margin-top: 390px;
 }
 
 #download {
   text-decoration: none;
   color: black;
-
+  margin-top: 40px;
 }
 
 .colorSettings {

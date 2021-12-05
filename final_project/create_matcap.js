@@ -9,10 +9,21 @@ var vd = vec4(0.816497, -0.471405, -0.333333, 1);
 
 // Light
 var lightDirection = vec3(0.0, 0.0, -1.0);
-var lightEmission = vec3(1.0, 1.0, 1.0);
+// var lightEmission = vec3(1.0, 1.0, 1.0);
+var lightEmission = vec4(1.0, 1.0, 1.0, 1.0);
 
-var materialAmbient = vec4(0.2, 0.2, 0.2, 0.2);
-// var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+var lightPosition = vec4(0.0, 0.0, -1.0, 0.0); // !!
+
+var materialAmbient = vec4(1.0, 1.0, 1.0, 1.0);
+var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
+var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
+var materialShininess = 100.0;
+
+var kd = 0.5;
+var ks = 0.5;
+var ka = 0.5;
+
+var le = 1.0;
 
 
 // Matrix
@@ -33,10 +44,10 @@ var at = vec3(0.0, 0.0, 0.0);
 var up = vec3(0.0, 0.2, 0.0);
 
 var alpha = 0.0;
-var radius = 4.0;
-var dr = 0.3 * Math.PI/180.0;
+var radius = 2.62;
+var dr = 0.5 * Math.PI/180.0;
 
-var numSubdivs = 5;
+var numSubdivs = 6;
 var index = 0;
 var pointsArray = [];
 var normalsArray = [];
@@ -102,8 +113,12 @@ window.onload = function init(){
 
 
 
-  var ambientProduct = mult(vec4(lightEmission, 1.0), materialAmbient);
-  // var diffuseProduct = mult(lightEmission, materialDiffuse);
+  // var ambientProduct = mult(lightAmbient, materialAmbient);
+  var ambientProduct = mult(lightEmission, materialAmbient);
+  // var diffuseProduct = mult(lightDiffuse, materialDiffuse);
+  var diffuseProduct = mult(lightEmission, materialDiffuse);
+  // var specularProduct = mult(lightSpecular, materialSpecular);
+  var specularProduct = mult(lightEmission, materialSpecular);
 
   tetrahedron(va, vb, vc, vd, numSubdivs);
 
@@ -133,15 +148,92 @@ window.onload = function init(){
   mLoc = gl.getUniformLocation(program, "m"); // get location of model matrix in shader
   vLoc = gl.getUniformLocation(program, "v"); // get location of view matrix in shader
 
+  lightPositionLoc = gl.getUniformLocation(program, "lightPosition");
+
 
   gl.uniform4fv(gl.getUniformLocation(program, "ambientProduct"),flatten(ambientProduct));
-  // gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct));
+  gl.uniform4fv(gl.getUniformLocation(program, "diffuseProduct"),flatten(diffuseProduct));
+  gl.uniform4fv(gl.getUniformLocation(program, "specularProduct"),flatten(specularProduct));
+  gl.uniform4fv(gl.getUniformLocation(program, "lightPosition"),flatten(lightPosition));
+  gl.uniform1f(gl.getUniformLocation(program, "shininess"), materialShininess);
+
+  gl.uniform1f(gl.getUniformLocation(program, "kd"), kd);
+  gl.uniform1f(gl.getUniformLocation(program, "ks"), ks);
+  gl.uniform1f(gl.getUniformLocation(program, "ka"), ka);
+
+  gl.uniform1f(gl.getUniformLocation(program, "le"), le);
+
+
   gl.uniform3fv(gl.getUniformLocation(program, "lightDirection"), normalize(lightDirection)); // dir
   gl.uniform3fv(gl.getUniformLocation(program, "lightEmission"), lightEmission); // emission
 
+
+
+  // Events
+  // sliders
+  document.getElementById("slideAlpha").oninput = function(){
+    alpha = event.srcElement.value;
+  };
+
+  document.getElementById("slideKa").oninput = function(){
+    ka = event.srcElement.value;
+    gl.uniform1f(gl.getUniformLocation(program, "ka"), ka);
+  };
+
+  document.getElementById("slideKd").oninput = function(){
+    kd = event.srcElement.value;
+    gl.uniform1f(gl.getUniformLocation(program, "kd"), kd);
+  };
+
+
+  document.getElementById("slideKs").oninput = function(){
+    ks = event.srcElement.value;
+    gl.uniform1f(gl.getUniformLocation(program, "ks"), ks);
+  };
+
+  document.getElementById("slideLe").oninput = function(){
+    le = event.srcElement.value;
+    gl.uniform1f(gl.getUniformLocation(program, "le"), le);
+  };
+
+
+
+
+
+  var texture_path = "./textures/mytexture.png";
+
+  function updateTexture(src) {
+    image.src = src;
+  }
+
+
+  document.getElementById('myTexture').onchange = function(evt) {
+     var tgt = evt.target || window.event.srcElement, files = tgt.files;
+     // FileReader support
+     if (FileReader && files && files.length) {
+        var fr = new FileReader();
+        fr.onload = () => showImage(fr);
+        fr.readAsDataURL(files[0]);
+     }
+  }
+
+  function showImage(fileReader) {
+     var img = document.getElementById("myImgTexture");
+     img.src = fileReader.result;
+     updateTexture(img.src);
+  }
+
+
+  // Save canvas
+  download_img = function(el) {
+   // get image URI from canvas object
+   var imageURI = canvas.toDataURL("matcap/jpg");
+   el.href = imageURI;
+  };
+
+
+
   gl.uniform1i(gl.getUniformLocation(program, "texMap"), 0);
-
-
 
   // Texture
   var texture = gl.createTexture();
@@ -158,15 +250,10 @@ window.onload = function init(){
 
     gl.generateMipmap(gl.TEXTURE_2D);
   };
-  image.src = './textures/mytexture2.png';
+  updateTexture(texture_path);
 
 
-  // Save canvas
-  download_img = function(el) {
-   // get image URI from canvas object
-   var imageURI = canvas.toDataURL("matcap/jpg");
-   el.href = imageURI;
-  };
+
 
 
   render();
@@ -176,10 +263,8 @@ window.onload = function init(){
 function render(){
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  alpha += dr;
-
-  // eye = vec3(radius*Math.sin(alpha), 0, radius*Math.cos(alpha));
-  eye = vec3(0, 0, -2.61);
+  eye = vec3(radius*Math.sin(alpha), 0, radius*Math.cos(alpha));
+  lightPosition = vec4(radius*Math.sin(alpha), 0, radius*Math.cos(alpha), 0);
 
   v = lookAt(eye, at, up);
   p = perspective(fovy, aspect, near, far);
@@ -189,6 +274,7 @@ function render(){
   gl.uniformMatrix4fv(vLoc, false, flatten(v)); // copy v to uniform value in shader
   gl.uniformMatrix4fv(projLoc, false, flatten(p)); // copy p to uniform value in shader
 
+  gl.uniform4fv(lightPositionLoc, flatten(lightPosition));
 
   for (var i = 0; i < index; i += 3) {
     gl.drawArrays(gl.TRIANGLES, i, 3);

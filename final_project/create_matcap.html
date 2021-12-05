@@ -26,17 +26,58 @@
     uniform mat4 p; // projection matrix in shader
 
     uniform vec4 ambientProduct;
+    uniform vec4 diffuseProduct;
+    uniform vec4 specularProduct;
+    uniform vec4 lightPosition;
+    uniform float shininess;
 
-    uniform vec3 lightEmission;
+    uniform float kd;
+    uniform float ks;
+    uniform float ka;
+    uniform float le;
+
+    // uniform vec3 lightEmission;
+    uniform vec4 lightEmission;
     uniform vec3 lightDirection;
 
 
     void main() {
-      vec4 ambient = ambientProduct;
-      vec3 diffuse = max(dot(lightDirection, a_Position.xyz), 0.0) * lightEmission;
+      // vec4 ambient = ambientProduct;
+      // vec3 diffuse = max(dot(lightDirection, a_Position.xyz), 0.0) * lightEmission;
+      //
+      // gl_Position = p * v * m * a_Position;
+      // v_Color = ambient + vec4(diffuse, 1.0);
+      vec3 pos = (v * m * a_Position).xyz; // vertex position in eye coordinates
+      vec3 light = (v * lightPosition).xyz;
+      vec3 L; // vector from vertex position to light source
+
+      // check for directional light
+      if (lightPosition.w == 0.0){
+        L = normalize(light);
+      }
+      else{
+        L = normalize(light - pos);
+      }
+
+
+    	vec3 E = -normalize(pos); // vector from the vertex position to the eye
+      vec3 H = normalize(L + E); // halfway vector
+      vec3 N = normalize((v * m * v_Normal).xyz); // transform vertex normal into eye coordinates
+
+      vec4 ambient = ambientProduct * ka;
+
+      vec4 diffuse = max(dot(L, N), 0.0) * diffuseProduct * kd;
+
+      vec4 specular = pow(max(dot(N, H), 0.0), shininess) * specularProduct * ks;
+
+      if(dot(L, N) < 0.0){
+  	     specular = vec4(0.0, 0.0, 0.0, 1.0);
+      }
 
       gl_Position = p * v * m * a_Position;
-      v_Color = ambient + vec4(diffuse, 1.0);
+      v_Color = (ambient + diffuse + specular) * le;
+      v_Color.a = 1.0;
+
 
 
       fTexCoord = texCoord;
@@ -70,7 +111,46 @@
 
   <body>
     <h1>Create MatCap</h1>
-    <canvas id="gl-canvas" width="512" height="512"></canvas>
-    <button><a id="download" download="mymatcap.jpg" href="" onclick="download_img(this);">Save Matcap</a></button>
+    <div class="container">
+      <canvas id="gl-canvas" width="512" height="512"></canvas>
+
+
+      <div class="topButtons">
+        Rotate sphere: <input id="slideAlpha" type="range" min="0.0" max="10.0" step="0.05" value="0.0" />
+
+        <div class="divLightSettings">
+          <p>Ambient:</p> <p class="paramSettings">0.0</p>
+          <input id="slideKa" type="range" min="0.0" max="1.0" step="0.01" value="0.5" /> <p>1.0</p>
+        </div>
+
+        <div class="divLightSettings">
+          <p>Diffuse:</p> <p class="paramSettings">0.0</p>
+          <input id="slideKd" type="range" min="0.0" max="1.0" step="0.01" value="0.5" /> <p>1.0</p>
+        </div>
+
+        <div class="divLightSettings">
+          <p>Specular: 0.0</p>
+          <input id="slideKs" type="range" min="0.0" max="1.0" step="0.01" value="0.5" /> <p>1.0</p>
+        </div>
+
+        <div class="divLightSettings">
+          <p>Emitted radiance: 0.0</p>
+          <input id="slideLe" type="range" min="0.0" max="2.0" step="0.02" value="1.0" /> <p>2.0</p>
+        </div>
+
+
+
+        <button id="downloadTButton"><a id="download" download="mymatcap.jpg" href="" onclick="download_img(this);">Save Matcap</a></button>
+      </div>
+    </div>
+
+    <div class="loadTextureOption">
+      <label for="myTexture">Load texture:</label>
+      <input type="file" id="myTexture" name="myTexture">
+
+      <div class="divTextureImg">
+        <img id="myImgTexture">
+      </div>
+    </div>
   </body>
 </html>
