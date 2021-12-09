@@ -2,28 +2,54 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title>Computer Graphics Lab Journal</title>
-     <link rel="stylesheet" href="../style.css">
+    <title>MatCaps Creator</title>
      <link rel="stylesheet" href="./style_final_project.css">
+
+
   </head>
   <body>
-    <h1>Computer Graphics Lab Journal</h1>
+    <h1>MatCaps Creator</h1>
     <h2>
-      Alba Reinders Sánchez
-      <br>
-      s212729
+      by Alba Reinders Sánchez (s212729)
     </h2>
 
-    <h3>Index</h3>
+    <br>
 
-    <ol class="list">
-      <li>FINAL PROJECT: Matcaps
-        <ol class="list">
-          <li><a href="./final_project/create_texture.html" target="_blank">Create texture</a></li>
-          <li><a href="./final_project/create_matcap.html" target="_blank">Create matcap</a></li>
-          <li><a href="./final_project/view_matcaps.html" target="_blank">View matcap on a 3D object</a></li>
-        </ol>
-      </li>
-    </ol>
+    <h4>Features</h4>
+
+    <div class="features">
+      <div class="card" onclick="create_texture_link()">
+        <h3>Create texture</h3>
+        <p>Create your own texture to create a MatCap from it</p>
+      </div>
+
+      <div class="card" onclick="create_matcap_link()">
+        <h3>Create MatCap</h3>
+        <p>Create your own MatCap loading your own texture</p>
+        <p>Adjust different parameters of the light and rotate the sphere to obtain the result you want</p>
+        <p>Load an existing texture or one that you created before</p>
+
+      </div>
+
+      <div class="card" onclick="view_matcaps_link()">
+        <h3>View MatCap on a 3D object</h3>
+        <p>Visualize any MatCap on a 3D object</p>
+        <p>Load your own MatCaps</p>
+      </div>
+    </div>
   </body>
+  <script>
+     function create_texture_link() {
+       window.open("./create_texture.html", '_blank').focus();
+     }
+
+     function create_matcap_link() {
+       window.open("./create_matcap.html", '_blank').focus();
+     }
+
+     function view_matcaps_link() {
+       window.open("./view_matcaps.html", '_blank').focus();
+     }
+
+  </script>
 </html>
