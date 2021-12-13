@@ -8,11 +8,8 @@ var vc = vec4(-0.816497, -0.471405, -0.333333, 1);
 var vd = vec4(0.816497, -0.471405, -0.333333, 1);
 
 // Light
-var lightDirection = vec3(0.0, 0.0, -1.0);
-// var lightEmission = vec3(1.0, 1.0, 1.0);
 var lightEmission = vec4(1.0, 1.0, 1.0, 1.0);
-
-var lightPosition = vec4(0.0, 0.0, -1.0, 0.0); // !!
+var lightPosition = vec4(0.0, 0.0, -1.0, 0.0);
 
 var materialAmbient = vec4(1.0, 1.0, 1.0, 1.0);
 var materialDiffuse = vec4(1.0, 0.8, 0.0, 1.0);
@@ -22,22 +19,18 @@ var materialShininess = 100.0;
 var kd = 0.5;
 var ks = 0.5;
 var ka = 0.5;
-
 var le = 1.0;
 
 
 // Matrix
-
 var m = mat4();   // model matrix
 var v = mat4();   // view matrix
-var p = mat4();    // projection matrix
-
+var p = mat4();   // projection matrix
 
 var fovy = 45.0; // angle between the top and bottom planes of the clipping volume
 var aspect = 1.0; // aspect ratio
 var near = 0.1; // distance from the viewer to the near clipping plane
 var far = 10.0; // distance from the viewer to the far clipping plane
-
 
 var eye;
 var at = vec3(0.0, 0.0, 0.0);
@@ -52,7 +45,7 @@ var index = 0;
 var pointsArray = [];
 var normalsArray = [];
 
-
+// Functions
 function triangle(a, b, c){
   pointsArray.push(a);
   pointsArray.push(b);
@@ -111,17 +104,12 @@ window.onload = function init(){
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.CULL_FACE);
 
-
-
-  // var ambientProduct = mult(lightAmbient, materialAmbient);
+  // Light
   var ambientProduct = mult(lightEmission, materialAmbient);
-  // var diffuseProduct = mult(lightDiffuse, materialDiffuse);
   var diffuseProduct = mult(lightEmission, materialDiffuse);
-  // var specularProduct = mult(lightSpecular, materialSpecular);
   var specularProduct = mult(lightEmission, materialSpecular);
 
   tetrahedron(va, vb, vc, vd, numSubdivs);
-
 
   // Normals
   var nBuffer = gl.createBuffer();
@@ -133,7 +121,6 @@ window.onload = function init(){
   gl.enableVertexAttribArray(vNormal);
 
 
-
   // Vertices
   var vBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, vBuffer);
@@ -143,10 +130,9 @@ window.onload = function init(){
   gl.vertexAttribPointer(vPosition, 4, gl.FLOAT, false, 0, 0);
   gl.enableVertexAttribArray(vPosition);
 
-
-  projLoc = gl.getUniformLocation(program, "p"); // get location of projection matrix in shader
-  mLoc = gl.getUniformLocation(program, "m"); // get location of model matrix in shader
-  vLoc = gl.getUniformLocation(program, "v"); // get location of view matrix in shader
+  projLoc = gl.getUniformLocation(program, "p");
+  mLoc = gl.getUniformLocation(program, "m");
+  vLoc = gl.getUniformLocation(program, "v");
 
   lightPositionLoc = gl.getUniformLocation(program, "lightPosition");
 
@@ -163,10 +149,7 @@ window.onload = function init(){
 
   gl.uniform1f(gl.getUniformLocation(program, "le"), le);
 
-
-  gl.uniform3fv(gl.getUniformLocation(program, "lightDirection"), normalize(lightDirection)); // dir
-  gl.uniform3fv(gl.getUniformLocation(program, "lightEmission"), lightEmission); // emission
-
+  gl.uniform4fv(gl.getUniformLocation(program, "lightEmission"), lightEmission);
 
 
   // Events
@@ -185,7 +168,6 @@ window.onload = function init(){
     gl.uniform1f(gl.getUniformLocation(program, "kd"), kd);
   };
 
-
   document.getElementById("slideKs").oninput = function(){
     ks = event.srcElement.value;
     gl.uniform1f(gl.getUniformLocation(program, "ks"), ks);
@@ -195,10 +177,6 @@ window.onload = function init(){
     le = event.srcElement.value;
     gl.uniform1f(gl.getUniformLocation(program, "le"), le);
   };
-
-
-
-
 
   var texture_path = "./textures/mytexture.png";
 
@@ -231,14 +209,10 @@ window.onload = function init(){
    el.href = imageURI;
   };
 
-
-
   gl.uniform1i(gl.getUniformLocation(program, "texMap"), 0);
-
   // Texture
   var texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
 
   var image = document.createElement('img');
   image.crossorigin = 'anonymous';
@@ -251,9 +225,6 @@ window.onload = function init(){
     gl.generateMipmap(gl.TEXTURE_2D);
   };
   updateTexture(texture_path);
-
-
-
 
 
   render();
@@ -269,11 +240,9 @@ function render(){
   v = lookAt(eye, at, up);
   p = perspective(fovy, aspect, near, far);
 
-
-  gl.uniformMatrix4fv(mLoc, false, flatten(m)); // copy m to uniform value in shader
-  gl.uniformMatrix4fv(vLoc, false, flatten(v)); // copy v to uniform value in shader
-  gl.uniformMatrix4fv(projLoc, false, flatten(p)); // copy p to uniform value in shader
-
+  gl.uniformMatrix4fv(mLoc, false, flatten(m));
+  gl.uniformMatrix4fv(vLoc, false, flatten(v));
+  gl.uniformMatrix4fv(projLoc, false, flatten(p)); 
   gl.uniform4fv(lightPositionLoc, flatten(lightPosition));
 
   for (var i = 0; i < index; i += 3) {

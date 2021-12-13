@@ -1,40 +1,8 @@
-// var gl;
-// var canvas;
-
-// Light
-// var lightPosition = vec4(4.0, 1.0, 5.0, 0.0);
-// var lightEmission = vec4(1.0, 1.0, 1.0, 1.0);
-//
-// var materialAmbient = vec4(1.0, 1.0, 1.0, 1.0);
-// var materialDiffuse = vec4(1.0, 1.0, 1.0, 1.0);
-// var materialSpecular = vec4(1.0, 1.0, 1.0, 1.0);
-// var materialShininess = 100.0;
-
-
-// Matrix
-
-// var m = mat4();   // model matrix
-// var v = mat4();   // view matrix
-// var p = mat4();    // projection matrix
-//
-//
-// var fovy = 45.0; // angle between the top and bottom planes of the clipping volume
-// var aspect = 1.0; // aspect ratio
-// var near = 0.1; // distance from the viewer to the near clipping plane
-// var far = 500.0; // distance from the viewer to the far clipping plane
-//
-//
-// var eye = vec3(0.0, 20.0, 300.0);
-// var at = vec3(0.0, 20.0, 0.0);
-// var up = vec3(0.0, 0.2, 0.0);
-
 var gl;
 var canvas;
 
 // Matrix
-var world = mat4(); // !
-
-// ???
+var world = mat4();
 var view = mat4();
 var projection = mat4();
 
@@ -64,7 +32,6 @@ window.onload = function main() {
     return;
   }
 
-  // gl.clearColor(0.3921, 0.5843, 0.9294, 1.0);
   gl.clearColor(0.89, 0.8, 1.0, 1.0);
 
   gl.enable(gl.DEPTH_TEST);
@@ -74,11 +41,10 @@ window.onload = function main() {
   gl.useProgram(program);
 
 
-
   // Events
   // MatCaps
   var matcap_folder = "./matcaps/";
-  var matcaps_names = ["green_gel.png", "darker_red.jpg", "blue_sky.jpg", "green_glass.jpg"];
+  var matcaps_names = ["green_gel.png", "darker_red.jpg", "blue_sky.jpg"];
   var matcap_path = matcap_folder + matcaps_names[0];
 
   function updateMatcap(src) {
@@ -92,8 +58,6 @@ window.onload = function main() {
   });
 
   matcapsMenu.selectedIndex = 0;
-
-
 
 
   document.getElementById('myMatcap').onchange = function(evt) {
@@ -113,23 +77,16 @@ window.onload = function main() {
   }
 
 
-
-
-
-
-
-
-
-
-
-
   // Objects 3D
   var object_folder = "./objects_3d/";
-  var objects_names = ["monkey.obj"];
+  var objects_names = ["Lamp.obj", "Mjolnir.obj", "monkey.obj"];
   var object_path = object_folder + objects_names[0];
 
   function updateObject(src) {
+    g_objDoc = null;
+    g_drawingInfo = null;
     readOBJFile(src, gl, model, 1, true);
+    interval = setInterval(function(){render(model)},1000);
   }
 
   var objectsMenu = document.getElementById("objectsMenu");
@@ -141,57 +98,24 @@ window.onload = function main() {
   objectsMenu.selectedIndex = 0;
 
 
+  document.getElementById('myObj').onchange = function(evt) {
+     var tgt = evt.target || window.event.srcElement, files = tgt.files;
+     // FileReader support
+     if (FileReader && files && files.length) {
+        var fr = new FileReader();
+        // fr.onload = () => showImage(fr);
+        fr.onload = () => updateObject(fr.result);
+        fr.readAsDataURL(files[0]);
+     }
+  }
 
 
 
 
 
-
-
-
-
-
-
-  // program.a_Position = gl.getAttribLocation(program, 'a_Position');
-  // program.a_Normal = gl.getAttribLocation(program, 'a_Normal');
-  // program.a_Color = gl.getAttribLocation(program, 'a_Color');
-
-
-  // projLoc = gl.getUniformLocation(program, "p"); // get location of projection matrix in shader
-  // mLoc = gl.getUniformLocation(program, "m"); // get location of model matrix in shader
-  // vLoc = gl.getUniformLocation(program, "v"); // get location of view matrix in shader
-  //
-  //
-  // ambientProductLoc = gl.getUniformLocation(program, "ambientProduct");
-  // diffuseProductLoc = gl.getUniformLocation(program, "diffuseProduct");
-  // specularProductLoc = gl.getUniformLocation(program, "specularProduct");
-  // lightPosLoc = gl.getUniformLocation(program, "lightPosition");
-  // shininessLoc = gl.getUniformLocation(program, "shininess");
-  //
-  //
-  // var ambientProduct = mult(lightEmission, scale(0.5, materialAmbient));
-  // var diffuseProduct = mult(lightEmission, scale(0.5, materialDiffuse));
-  // var specularProduct = mult(lightEmission, scale(0.5, materialSpecular));
-
-
-  // v = lookAt(eye, at, up);
-  // p = perspective(fovy, aspect, near, far);
-  //
-  // gl.uniformMatrix4fv(mLoc, false, flatten(m)); // copy m to uniform value in shader
-  // gl.uniformMatrix4fv(vLoc, false, flatten(v)); // copy v to uniform value in shader
-  // gl.uniformMatrix4fv(projLoc, false, flatten(p)); // copy p to uniform value in shader
-  //
-  // gl.uniform4fv(ambientProductLoc,flatten(ambientProduct));
-  // gl.uniform4fv(diffuseProductLoc,flatten(diffuseProduct));
-  // gl.uniform4fv(specularProductLoc,flatten(specularProduct));
-  // gl.uniform4fv(lightPosLoc,flatten(lightPosition));
-  // gl.uniform1f(shininessLoc, materialShininess);
   worldLoc = gl.getUniformLocation(program, "world");
-  gl.uniformMatrix4fv(worldLoc, false, flatten(world)); // sin flatten¿? !
+  gl.uniformMatrix4fv(worldLoc, false, flatten(world));
 
-
-
-  // ???
   program.position = gl.getAttribLocation(program, 'position');
   program.normal = gl.getAttribLocation(program, 'normal');
 
@@ -204,14 +128,12 @@ window.onload = function main() {
   viewLoc = gl.getUniformLocation(program, "view");
   gl.uniformMatrix4fv(viewLoc, false, flatten(v));
 
-
   gl.uniform1i(gl.getUniformLocation(program, "matcapTexture"), 0);
 
 
   // Texture
   var texture = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, texture);
-
 
   var image = document.createElement('img');
   image.crossorigin = 'anonymous';
@@ -226,9 +148,6 @@ window.onload = function main() {
   updateMatcap(matcap_path);
 
 
-
-
-
   // OBJ
   var g_objDoc = null;      // The information of OBJ file
   var g_drawingInfo = null; // The information for drawing 3D model
@@ -239,10 +158,10 @@ window.onload = function main() {
   // Start reading the OBJ file
   updateObject(object_path);  // inside this function readOBJFile is called
 
-  var interval = setInterval(function(){render(model)},1000);
+  var interval;
 
 
-  // Functions
+  // Functions OBJ
   // Create a buffer object and perform the initial configuration
   function initVertexBuffers(gl, program) {
     var o = new Object();
@@ -307,28 +226,8 @@ window.onload = function main() {
   }
 
 
-
+  // Render
   function render(model) {
-    // if (!g_drawingInfo && g_objDoc && g_objDoc.isMTLComplete()) {
-    //  // OBJ and all MTLs are available
-    //  g_drawingInfo = onReadComplete(gl, model, g_objDoc);
-    //
-    // }
-    // if (!g_drawingInfo) return;
-    //
-    // gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    //
-    // ambientProduct = mult(lightEmission, scale(0.5, materialAmbient));
-    // diffuseProduct = mult(lightEmission, scale(0.5, materialDiffuse));
-    // specularProduct = mult(lightEmission, scale(0.5, materialSpecular));
-    //
-    // gl.uniform4fv(ambientProductLoc,flatten(ambientProduct));
-    // gl.uniform4fv(diffuseProductLoc,flatten(diffuseProduct));
-    // gl.uniform4fv(specularProductLoc,flatten(specularProduct));
-    // gl.uniform1f(shininessLoc, materialShininess);
-    //
-    //
-    // gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
     if (!g_drawingInfo && g_objDoc && g_objDoc.isMTLComplete()) {
      // OBJ and all MTLs are available
      g_drawingInfo = onReadComplete(gl, model, g_objDoc);
@@ -348,7 +247,6 @@ window.onload = function main() {
 
     gl.uniformMatrix4fv(projLoc, false, flatten(p));
     gl.uniformMatrix4fv(viewLoc, false, flatten(v));
-
 
     gl.drawElements(gl.TRIANGLES, g_drawingInfo.indices.length, gl.UNSIGNED_SHORT, 0);
 

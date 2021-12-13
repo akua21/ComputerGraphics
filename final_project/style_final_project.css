@@ -59,19 +59,14 @@ h4 {
   top: -10px;
 }
 
+.divLink {
+  text-align: center;
+  padding: 30px;
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
+.link {
+  color: white;
+}
 
 
 
@@ -85,8 +80,29 @@ h4 {
   padding-left: 10px;
 }
 
+#objectsMenu {
+  cursor: pointer;
+}
+
+#matcapsMenu {
+  cursor: pointer;
+}
+
+.loadObjOption {
+  padding-top: 15px;
+  padding-bottom: 30px;
+}
+
+#myObj {
+  cursor: pointer;
+}
+
 .loadMatcapOption {
   padding-top: 10px;
+}
+
+#myMatcap {
+  cursor: pointer;
 }
 
 #myImgMatcap {
@@ -102,6 +118,13 @@ h4 {
 
 
 /* Create matcap page */
+.rightButtons {
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .divLightSettings {
   display: flex;
   margin-top: 5px;
@@ -112,11 +135,13 @@ h4 {
 }
 
 #downloadTButton {
-  margin-top: 220px;
+  margin-top: 200px;
+  padding: 10px;
+  cursor: pointer;
 }
 
 .loadTextureOption {
-  padding-top: 10px;
+  padding-top: 20px;
 }
 
 #myImgTexture {
@@ -130,36 +155,73 @@ h4 {
   padding-top: 10px;
 }
 
+#slideAlpha {
+  cursor: pointer;
+}
+
+#slideKa {
+  cursor: pointer;
+}
+#slideKd {
+  cursor: pointer;
+}
+#slideKs {
+  cursor: pointer;
+}
+#slideLe {
+  cursor: pointer;
+}
+
+#myTexture {
+  cursor: pointer;
+}
+
 
 
 /* Create texture page */
 .topButtons {
-  padding-left: 10px;
+  padding-left: 20px;
   display: flex;
   flex-direction: column;
-  align-items:flex-start;
 }
 
 #addPointButton {
   margin-bottom: 10px;
+  padding: 10px;
+  flex: 1;
+  cursor: pointer;
 }
 
 #addTriangleButton {
   margin-bottom: 10px;
+  padding: 10px;
+  flex: 1;
+  cursor: pointer;
 }
 
 #addCircleButton {
   margin-bottom: 10px;
+  padding: 10px;
+  flex: 1;
+  cursor: pointer;
 }
 
 #downloadButton {
-  margin-top: 390px;
+  margin-top: 325px;
+  padding: 10px;
+  cursor: pointer;
 }
 
 #download {
   text-decoration: none;
   color: black;
   margin-top: 40px;
+}
+
+#changeBackground {
+  padding: 10px;
+  cursor: pointer;
+  margin-left: 25px;
 }
 
 .colorSettings {
@@ -169,7 +231,11 @@ h4 {
 .background {
   display: flex;
   align-items: center;
-  width: 600px;
+  width: 610px;
+}
+
+#bgMenu {
+  cursor: pointer;
 }
 
 .divColorBckgrnd {
@@ -178,24 +244,23 @@ h4 {
   align-items: center;
 }
 
-.divLoadBckgrnd {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding-left: 40px;
+#colorMenu {
+  cursor: pointer;
 }
 
 .pencil {
   display: flex;
   align-items: center;
   width: 100px;
-  padding-top: 13px;
+  padding-top: 9px;
 }
 
 .penColor {
-  padding-left: 100px;
+  padding-left: 80px;
 }
 
 #clearButton {
-  margin-top: 20px;
+  margin-left: 65px;
+  padding: 10px;
+  cursor: pointer;
 }

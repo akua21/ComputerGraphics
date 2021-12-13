@@ -2,8 +2,7 @@
 <html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8">
-    <title></title>
-    <link rel="stylesheet" href="../style.css">
+    <title>Create texture</title>
     <link rel="stylesheet" href="./style_final_project.css">
   </head>
 
@@ -15,11 +14,8 @@
     attribute vec2 texCoord;
     varying vec2 fTexCoord;
 
-    uniform mat4 mv; // modelview matrix in shader
-    uniform mat4 p; // projection matrix in shader
-
     void main() {
-      gl_Position = p * mv * a_Position;
+      gl_Position = a_Position;
       gl_PointSize = 10.0;
       v_Color = a_Color;
 
@@ -35,8 +31,7 @@
     varying vec2 fTexCoord;
 
     void main() {
-      // gl_FragColor = v_Color;
-      gl_FragColor = texture2D(bgTexture, fTexCoord);
+      gl_FragColor = v_Color;
     }
   </script>
 
@@ -44,7 +39,6 @@
   <script type ="text/javascript" src="../angelCommon/initShaders.js"></script>
   <script type ="text/javascript" src="../angelCommon/MV.js"></script>
   <script src="create_texture.js"></script>
-
 
   <body>
     <h1>Create texture</h1>
@@ -63,10 +57,9 @@
 
     <div class="colorSettings">
       <div class="bgColor">
-        <p> Background: </p>
+        <p> Background color: </p>
         <div class="background">
           <div class="divColorBckgrnd">
-            <p>Color:</p>
             <select id="bgMenu" size="1">
               <option value="0" selected>Red</option>
               <option value="1">Orange</option>
@@ -82,18 +75,14 @@
               <option value="11">Raspberry</option>
             </select>
           </div>
-
-          <div class="divLoadBckgrnd">
-            <p>Load image:</p>
-            <input type="file" id="myBckgrnd" name="myBckgrnd">
-          </div>
           <button id="changeBackground">Apply</button>
+          <button id="clearButton">Clear</button>
         </div>
       </div>
       <div class="penColor">
         <p> Pencil color: </p>
         <div class="pencil">
-          <select id="bgMenu" size="1">
+          <select id="colorMenu" size="1">
             <option value="0" selected>Red</option>
             <option value="1">Orange</option>
             <option value="2">Yellow</option>
@@ -109,11 +98,6 @@
           </select>
         </div>
       </div>
-    </div>
-    <button id="clearButton">Clear background</button>
-
-    <div class="divMatcapImg">
-      <img id="myImgMatcap">
     </div>
   </body>
 </html>
