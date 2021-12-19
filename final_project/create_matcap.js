@@ -220,7 +220,7 @@ window.onload = function init(){
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
 
     gl.generateMipmap(gl.TEXTURE_2D);
   };
@@ -242,7 +242,7 @@ function render(){
 
   gl.uniformMatrix4fv(mLoc, false, flatten(m));
   gl.uniformMatrix4fv(vLoc, false, flatten(v));
-  gl.uniformMatrix4fv(projLoc, false, flatten(p)); 
+  gl.uniformMatrix4fv(projLoc, false, flatten(p));
   gl.uniform4fv(lightPositionLoc, flatten(lightPosition));
 
   for (var i = 0; i < index; i += 3) {
